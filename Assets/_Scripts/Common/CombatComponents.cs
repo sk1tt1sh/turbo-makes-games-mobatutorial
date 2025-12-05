@@ -106,3 +106,5 @@ public struct  NpcAttackCoolDown : ICommandData{
   public NetworkTick Tick { get; set; }
   public NetworkTick Value;
 }
+
+public struct GameOverOnDestroyTag : IComponentData { }

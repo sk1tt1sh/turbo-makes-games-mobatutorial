@@ -29,11 +29,20 @@ public partial struct DestroyEntitySystem : ISystem {
       //But the client hides it until the server says "hey it's destroyed" 
       //Need to learn more about this...
       if(state.World.IsServer()) {
+        if(SystemAPI.HasComponent<GameOverOnDestroyTag>(entity)) {
+          var gameoverprefab = SystemAPI.GetSingleton<MobaPrefabs>().GameOverEntity;
+          var gameoverentity = ecb.Instantiate(gameoverprefab);
+
+          var losingTeam = SystemAPI.GetComponent<MobaTeam>(entity).Value;
+          var winning = losingTeam == TeamType.Blue ? TeamType.Red : TeamType.Blue;
+
+          ecb.SetComponent(gameoverentity, new WinningTeam { Value = winning });
+        }
         ecb.DestroyEntity(entity);
       }
-      //else if(state.World.IsClient()) {
-      //  transform.ValueRW.Position = new Unity.Mathematics.float3(0, -1000,0);
-      //}
+      else if(state.World.IsClient()) {
+        transform.ValueRW.Position = new Unity.Mathematics.float3(0, -1000,0);
+      }
     }
   }
 }

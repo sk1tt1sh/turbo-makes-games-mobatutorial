@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 433028802003525436}
   - component: {fileID: -7034676193636607510}
   - component: {fileID: 9105088967928506563}
+  - component: {fileID: 879694634854495663}
   m_Layer: 0
   m_Name: Base
   m_TagString: Untagged
@@ -330,3 +331,15 @@ MonoBehaviour:
   UseSingleBaseline: 0
   RollbackPredictedSpawnedGhostState: 0
   RollbackPredictionOnStructuralChanges: 1
+--- !u!114 &879694634854495663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5326781307255034168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b32e851bc4bda34d833720e8882e682, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverOnDestroyAuthoring
