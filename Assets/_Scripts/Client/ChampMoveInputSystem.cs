@@ -64,7 +64,7 @@ public partial class ChampMoveInputSystem : SystemBase {
   }
 
   private void OnSelectMovePosition(InputAction.CallbackContext obj) {
-    Debug.Log("OnSelectMovePosition");
+    //Debug.Log("OnSelectMovePosition");
     CollisionWorld collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
     RaycastInput selectionInput = GetRayCastData(ref collisionWorld);
 
@@ -74,7 +74,7 @@ public partial class ChampMoveInputSystem : SystemBase {
 
       foreach(var (xform, entity) in SystemAPI.Query<RefRO<LocalTransform>>().WithEntityAccess()) {
         if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f) {
-          Debug.Log("Found a nearby entity where move select hit");
+          //Debug.Log("Found a nearby entity where move select hit");
           champTargetEntity = entity;
         }
       }
@@ -84,11 +84,11 @@ public partial class ChampMoveInputSystem : SystemBase {
       //Therefore the check here indicates no target entity was found in the above idiomatic foreach
       //Additionally, the player clicked away from the existing target and wants to move elsewhere
       if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetEntity>(champEntity)) {
-        Debug.Log("Removing ChampTargetEntity");
+        //Debug.Log("Removing ChampTargetEntity");
         EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = Entity.Null });
       }
       else {
-        Debug.Log($"Setting targetEntity to {champTargetEntity.Index}");
+        //Debug.Log($"Setting targetEntity to {champTargetEntity.Index}");
         
         EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = champTargetEntity });
       }

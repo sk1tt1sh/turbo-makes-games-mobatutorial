@@ -37,14 +37,14 @@ public class GameStartUIController : MonoBehaviour {
     if(startGameSystem != null) {
       startGameSystem.OnUpdatePlayersRemainingToStart += UpdatePlayerRemainingText;
       startGameSystem.OnGameStartCountdown += BeginCountdown;
-    } else Debug.Log("GameStartUIController did not get startGameSystem");
+    }// else Debug.Log("GameStartUIController did not get startGameSystem");
 
     var countdownSystem = World.DefaultGameObjectInjectionWorld
           .GetExistingSystemManaged<CountdownToGameStartSystem>();
     if(countdownSystem != null) {
       countdownSystem.OnUpdateCountdownText += UpdateCountdownText;
       countdownSystem.OnCountdownEnd += EndCountdown;
-    } else Debug.Log("No countdown system found in gameobjectinjection world");
+    }// else Debug.Log("No countdown system found in gameobjectinjection world");
   }
 
   private void OnDisable() {

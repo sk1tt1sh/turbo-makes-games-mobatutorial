@@ -35,8 +35,8 @@ public partial struct ChampMoveSystem : ISystem {
         var target = SystemAPI.GetComponentRW<ChampTargetEntity>(entity);
         var hasLocalTransform = SystemAPI.HasComponent<LocalTransform>(target.ValueRO.Target);
 
-        Debug.Log($"ChampTargetEntity exists. Target Entity: {target.ValueRO.Target.Index}, " +
-          $"Has Transform:{hasLocalTransform.ToString()} on {(state.WorldUnmanaged.IsServer()?"server":"client")}");
+        //Debug.Log($"ChampTargetEntity exists. Target Entity: {target.ValueRO.Target.Index}, " +
+        //  $"Has Transform:{hasLocalTransform.ToString()} on {(state.WorldUnmanaged.IsServer()?"server":"client")}");
 
         if(hasLocalTransform) {
           var targetPos = SystemAPI.GetComponent<LocalTransform>(target.ValueRO.Target);
@@ -53,8 +53,8 @@ public partial struct ChampMoveSystem : ISystem {
           moveTarget = movePosition.ValueRO.Value;
           // This prevents the player from moving into the ground
           moveTarget.y = transform.ValueRO.Position.y;
-          if(state.WorldUnmanaged.IsServer())
-            Debug.LogWarning("Target entity has no transform (server)");
+          //if(state.WorldUnmanaged.IsServer())
+            //Debug.LogWarning("Target entity has no transform (server)");
           //Proably need to remove that target entity. The champion will probably move to last target position
           //We might be able to use a hack on the component data and set the position as the target moves
         }

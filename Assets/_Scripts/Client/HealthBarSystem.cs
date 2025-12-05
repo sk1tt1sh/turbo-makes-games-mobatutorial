@@ -34,15 +34,21 @@ public partial struct HealthBarSystem : ISystem {
       ecb.AddComponent(entity, new HealthBarUIReference { Value = newHpBar});
     }
 
+    var nanFloat3 = new float3(float.NaN, float.NaN, float.NaN);
     // Moves the position and value of the hp bars
     foreach(var (transform, hpOffset, maxHP, currentHp, hpUI, entity) in
        SystemAPI.Query<LocalTransform, HealthBarOffset, MaxHitPoints, CurrentHitPoints, HealthBarUIReference>()
        .WithEntityAccess()) {
 
-      // We should optimize this later to only update when position changes
-      var hpPosition = transform.Position + hpOffset.Value;
+      if(transform.Position.Equals(nanFloat3) || hpOffset.Value.Equals(nanFloat3)) {
+        Debug.LogWarning($"NanFloat on transform for entity {entity.Index}");
+        continue;
+      }
 
-      if(hpPosition.Equals(new float3(float.NaN, float.NaN, float.NaN))) continue;
+        // We should optimize this later to only update when position changes
+        var hpPosition = transform.Position + hpOffset.Value;
+
+      if(hpPosition.Equals(nanFloat3)) continue;
 
       hpUI.Value.transform.position = hpPosition;
       // We should optimize this later to only update when hp changes
