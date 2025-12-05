@@ -76,6 +76,13 @@ public partial struct ServerProcessGameEntryRequestSystem : ISystem {
       //This will destroy the champion when the connection drops etc...
       ecb.AppendToBuffer(reqSrc.SourceConnection, new LinkedEntityGroup { Value = newChamp });
 
+
+      ecb.SetComponent(newChamp, new NetworkEntityReference { Value = reqSrc.SourceConnection });
+      ecb.AddComponent(reqSrc.SourceConnection, new PlayerSpawnInfo { 
+        SpawnPosition = spawnPos,
+        Team = reqTeamType
+      });
+
       var playersRemainingToStart = gameStartProps.MinPlayersToStart - teamPlayerCount.TotalPlayers;
       var gameStartRpc = ecb.CreateEntity();
       if(playersRemainingToStart <= 0 && !SystemAPI.HasSingleton<GamePlayingTag>()) {

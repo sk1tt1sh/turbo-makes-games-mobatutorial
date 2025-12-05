@@ -23,6 +23,7 @@ class ChampionAuthoring : MonoBehaviour {
       });
       AddComponent<AbilityInput>(entity);
       AddComponent<AimInput>(entity);
+      AddComponent<NetworkEntityReference>(entity);
     }
   }
 }

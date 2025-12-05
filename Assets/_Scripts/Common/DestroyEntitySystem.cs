@@ -38,6 +38,21 @@ public partial struct DestroyEntitySystem : ISystem {
 
           ecb.SetComponent(gameoverentity, new WinningTeam { Value = winning });
         }
+
+        if(SystemAPI.HasComponent<ChampTag>(entity)) {
+          var networkEntity = SystemAPI.GetComponent<NetworkEntityReference>(entity).Value;
+          var respawnEntity = SystemAPI.GetSingletonEntity<RespawnEntityTag>();
+          var respawnTickCount = SystemAPI.GetComponent<RespawnTickCount>(respawnEntity).Value;
+          var respawnTick = currTick;
+          respawnTick.Add(respawnTickCount);
+
+          ecb.AppendToBuffer(respawnEntity, new RespawnBufferElement {
+            NetworkEntity = networkEntity,
+            RespawnTick = respawnTick,
+            NetworkId = SystemAPI.GetComponent<NetworkId>(networkEntity).Value
+          });
+        }
+
         ecb.DestroyEntity(entity);
       }
       else if(state.World.IsClient()) {
