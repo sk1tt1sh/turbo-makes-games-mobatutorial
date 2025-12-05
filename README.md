@@ -22,6 +22,16 @@ This project demonstrates a client-server multiplayer game using Unity's modern 
 - **Networking**: Unity Netcode for Entities 1.9.3
 - **Architecture**: DOTS/ECS with Entities 1.x
 
+## Pending Feature Updates
+We will be making customizations to this project in an effort to learn
+more about NFE and ECS:
+- **Auto Attack**: Right click will set automatic ranged attack
+- **Minion Target Lock**: Minions will no longer attack the closest target
+- **Minion Chasing**: While the target is in range the minions will follow
+- **Terrain**: Add walls and paths between lanes
+- **Tower Target Lock**: Towers will fire at the first target till they leave range
+- **Homing projectiles**: Tower and Minion projectiles will follow the target they were fired at
+
 ## Features
 
 - Client-server multiplayer architecture
