@@ -64,6 +64,7 @@ Assets/
 - **Right Mouse Button**: Set movement target
 - **Q**: Use AOE ability
 - **W**: Prepare skill-shot ability
+- **E**: Dash ability - does not hit structures
 - **Left Mouse Button**: Confirm skill-shot direction
 
 ## Key Systems
