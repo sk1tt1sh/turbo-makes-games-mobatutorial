@@ -36,3 +36,4 @@ public partial struct ChampMoveSystem : ISystem {
     }
   }
 }
+
