@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Physics;
 using Unity.Transforms;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -44,11 +45,9 @@ public partial class ChampMoveInputSystem : SystemBase {
       Entity champEntity = SystemAPI.GetSingletonEntity<OwnerChampTag>();
       var entityTransform = EntityManager.GetComponentData<LocalTransform>(champEntity);
       if(!EntityManager.HasComponent<AimChargeAbilityTag>(champEntity)) {
-        Debug.Log("Champ does not have AimChargeAbilityTage");
         return;
       }
       if(!EntityManager.HasComponent<CharacterMoveSpeed>(champEntity)) {
-        Debug.Log("Champ does not have CharacterMoveSpeed component");
         return;
       }
 
@@ -57,7 +56,7 @@ public partial class ChampMoveInputSystem : SystemBase {
       float distance = math.length(offset);
       var targetPosition = entityTransform.Position + math.normalize(offset) * dashInfo.DashDistance;
       targetPosition.y = entityTransform.Position.y;
-      Debug.Log($"Closest hit = {closestHit.Position}, current position {entityTransform.Position} - Distance {math.distance(closestHit.Position,entityTransform.Position)} - Clamped distance: {targetPosition}");
+      //Debug.Log($"Closest hit = {closestHit.Position}, current position {entityTransform.Position} - Distance {math.distance(closestHit.Position,entityTransform.Position)} - Clamped distance: {targetPosition}");
       EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {
         Value = targetPosition
       });
@@ -65,16 +64,38 @@ public partial class ChampMoveInputSystem : SystemBase {
   }
 
   private void OnSelectMovePosition(InputAction.CallbackContext obj) {
-    //Debug.Log("OnSelectMovePosition");
+    Debug.Log("OnSelectMovePosition");
     CollisionWorld collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
     RaycastInput selectionInput = GetRayCastData(ref collisionWorld);
 
     if(collisionWorld.CastRay(selectionInput, out Unity.Physics.RaycastHit closestHit)) {
       Entity champEntity = SystemAPI.GetSingletonEntity<OwnerChampTag>();
+      Entity champTargetEntity = Entity.Null;
+
+      foreach(var (xform, entity) in SystemAPI.Query<RefRO<LocalTransform>>().WithEntityAccess()) {
+        if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f) {
+          Debug.Log("Found a nearby entity where move select hit");
+          champTargetEntity = entity;
+        }
+      }
+
+      //Remove the auto attack target
+      //Entities created with new Entity() have a 0 value index
+      //Therefore the check here indicates no target entity was found in the above idiomatic foreach
+      //Additionally, the player clicked away from the existing target and wants to move elsewhere
+      if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetEntity>(champEntity)) {
+        Debug.Log("Removing ChampTargetEntity");
+        EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = Entity.Null });
+      }
+      else {
+        Debug.Log($"Setting targetEntity to {champTargetEntity.Index}");
+        
+        EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = champTargetEntity });
+      }
+
       EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {
         Value = closestHit.Position
       });
-
     }
   }
 

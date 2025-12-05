@@ -49,7 +49,7 @@ public partial struct ChampionDashSystem : ISystem {
       dashData.ValueRW.DistanceRemaining -= math.length(moveVector);
 
       if(dashData.ValueRO.DistanceRemaining <= 0f) {
-        Debug.Log("Dash distance consumed");
+        //Debug.Log("Dash distance consumed");
         ecb.RemoveComponent<ChampDashingTag>(entity);
         ecb.RemoveComponent<ChampDashData>(entity);
       }
@@ -82,7 +82,7 @@ public partial struct ChampionDashSystem : ISystem {
       dashData.ValueRW.DistanceRemaining -= math.length(moveVector);
 
       if(dashData.ValueRO.DistanceRemaining <= 0f && state.WorldUnmanaged.IsServer()) {
-        Debug.Log("Dash distance consumed");
+        //Debug.Log("Dash distance consumed");
         ecb.DestroyEntity(entity);
       }
     }

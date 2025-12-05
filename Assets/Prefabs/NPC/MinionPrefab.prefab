@@ -653,7 +653,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8325049ad0b832246a292517c3cf4804, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NpcAttackAuthoring
-  NpcTargetRadius: 10
+  NpcTargetRadius: 8
   AttackCooldownTime: 3
   FirePointOffset: {x: 0, y: 0, z: 0}
   AttackPrefab: {fileID: 2431554015213539405, guid: b661a6a0240ac674482530de89d3ae23,

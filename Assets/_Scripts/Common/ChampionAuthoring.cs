@@ -21,6 +21,7 @@ class ChampionAuthoring : MonoBehaviour {
         DashSpeed = authoring.DashSpeed,
         DashDistance = authoring.DashDistance
       });
+      AddComponent<ChampTargetEntity>(entity);
       AddComponent<AbilityInput>(entity);
       AddComponent<AimInput>(entity);
       AddComponent<NetworkEntityReference>(entity);

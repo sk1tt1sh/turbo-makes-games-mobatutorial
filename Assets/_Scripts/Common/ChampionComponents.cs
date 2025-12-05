@@ -31,7 +31,12 @@ public struct ChampDashData : IComponentData {
 public struct ChampMoveTargetPosition : IInputComponentData {
   //Quant 0 means the full float value will send the whole float.
   //Setting to higher will reduce the amount of data sent
-  [GhostField(Quantization = 3)] public float3 Value;
+  [GhostField(Quantization = 1)] public float3 Value;
+}
+
+[GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
+public struct ChampTargetEntity : IInputComponentData {
+  [GhostField] public Entity Target;
 }
 
 //This will use the "Input.Set()" event if it's "FirstFullServerTick"

@@ -1,6 +1,8 @@
 using Unity.Burst;
 using Unity.Entities;
+using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -39,6 +41,9 @@ public partial struct HealthBarSystem : ISystem {
 
       // We should optimize this later to only update when position changes
       var hpPosition = transform.Position + hpOffset.Value;
+
+      if(hpPosition.Equals(new float3(float.NaN, float.NaN, float.NaN))) continue;
+
       hpUI.Value.transform.position = hpPosition;
       // We should optimize this later to only update when hp changes
       SetHealthBar(hpUI.Value, currentHp.Value, maxHP.Value);
