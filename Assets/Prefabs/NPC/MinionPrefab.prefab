@@ -639,7 +639,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c52209cba4757d442a7b229bbe905c7b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitPointsAuthoring
-  MaxHitpoints: 250
+  MaxHitpoints: 500
   HealtBarOffset: {x: 0, y: 2, z: 0}
 --- !u!114 &-9211891718319465302
 MonoBehaviour:

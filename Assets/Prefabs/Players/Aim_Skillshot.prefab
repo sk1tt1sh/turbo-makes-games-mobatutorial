@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: -9206955128942525301}
   - component: {fileID: 2828582907489194627}
   m_Layer: 0
-  m_Name: SkillshotAim
+  m_Name: Aim_Skillshot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

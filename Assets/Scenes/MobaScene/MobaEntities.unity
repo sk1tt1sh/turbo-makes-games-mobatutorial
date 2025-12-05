@@ -133,6 +133,11 @@ PrefabInstance:
       propertyPath: MobaTeam
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 2500
+      objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MobaTeam
@@ -141,7 +146,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower
+      value: Tower_B_Red
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -260,6 +265,11 @@ PrefabInstance:
       propertyPath: MobaTeam
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 2500
+      objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MobaTeam
@@ -268,7 +278,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower_2
+      value: Tower_T_Blue
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -387,6 +397,11 @@ PrefabInstance:
       propertyPath: MobaTeam
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 2500
+      objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MobaTeam
@@ -395,7 +410,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower_1
+      value: Tower_B_Blue
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -517,7 +532,7 @@ PrefabInstance:
     - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MaxHitpoints
-      value: 250
+      value: 2500
       objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -527,7 +542,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower
+      value: Tower_M_Red
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -649,7 +664,7 @@ PrefabInstance:
     - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MaxHitpoints
-      value: 500
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -659,7 +674,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower_3
+      value: Tower_H_Red
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -822,6 +837,11 @@ PrefabInstance:
       propertyPath: MobaTeam
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 2500
+      objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MobaTeam
@@ -830,7 +850,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower
+      value: Tower_T_Red
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -1124,6 +1144,11 @@ PrefabInstance:
       propertyPath: MobaTeam
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 2500
+      objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MobaTeam
@@ -1132,7 +1157,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower
+      value: Tower_M_Blue
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -1482,7 +1507,7 @@ PrefabInstance:
     - target: {fileID: -2277563158668197951, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: MaxHitpoints
-      value: 500
+      value: 5000
       objectReference: {fileID: 0}
     - target: {fileID: 738316474713273408, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -1492,7 +1517,7 @@ PrefabInstance:
     - target: {fileID: 1808960621481842931, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
       propertyPath: m_Name
-      value: Tower
+      value: Tower_H_Blue
       objectReference: {fileID: 0}
     - target: {fileID: 2434015161200619811, guid: 38f4e9377d234a64488bff6c7061bc95,
         type: 3}
@@ -1661,6 +1686,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 433028802003525436, guid: c22c40ef4537da44597359c8d8e582e2,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 10000
+      objectReference: {fileID: 0}
     - target: {fileID: 2368655037558888986, guid: c22c40ef4537da44597359c8d8e582e2,
         type: 3}
       propertyPath: MaxHitPoints
@@ -1786,6 +1816,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 433028802003525436, guid: c22c40ef4537da44597359c8d8e582e2,
+        type: 3}
+      propertyPath: MaxHitpoints
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 2368655037558888986, guid: c22c40ef4537da44597359c8d8e582e2,
         type: 3}
