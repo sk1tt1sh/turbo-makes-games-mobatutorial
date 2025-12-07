@@ -38,7 +38,7 @@ public partial struct MoveMinionSystem : ISystem {
         pathIndex.ValueRW.Value++;
         currTargetPos = pathPositions[pathIndex.ValueRO.Value].Value;
       }
-      currTargetPos.y = transform.ValueRO.Position.y;
+      //currTargetPos.y = transform.ValueRO.Position.y;
       var curHeading = math.normalizesafe(currTargetPos - transform.ValueRO.Position);
       transform.ValueRW.Position += curHeading * moveSpeed.Value * deltaTime;
       transform.ValueRW.Rotation = quaternion.LookRotationSafe(curHeading, math.up());

@@ -41,7 +41,7 @@ public partial struct ChampMoveSystem : ISystem {
         if(hasLocalTransform) {
           var targetPos = SystemAPI.GetComponent<LocalTransform>(target.ValueRO.Target);
           moveTarget = targetPos.Position;
-          moveTarget.y = transform.ValueRO.Position.y;
+          //moveTarget.y = transform.ValueRO.Position.y;
 
           //TODO: Add a component to champ for their auto attack range
           if(math.distance(transform.ValueRO.Position, moveTarget) < 9f) {
@@ -62,7 +62,7 @@ public partial struct ChampMoveSystem : ISystem {
       else {
         moveTarget = movePosition.ValueRO.Value;
         // This prevents the player from moving into the ground
-        moveTarget.y = transform.ValueRO.Position.y;
+        //moveTarget.y = transform.ValueRO.Position.y;
 
         if(math.distance(transform.ValueRO.Position, moveTarget) < 1f) {
           //If the move distance (Likely an absolute value) is too small don't do anything. 
