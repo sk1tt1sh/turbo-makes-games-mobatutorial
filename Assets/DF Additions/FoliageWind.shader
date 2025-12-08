@@ -1,4 +1,4 @@
-Shader "Custom/FoliageWindURP_GlobalWind"
+Shader "Custom/FoliageWindURP_GlobalWind_DOTS"
 {
     Properties
     {
@@ -42,6 +42,9 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -52,6 +55,7 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
                 float4 color : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             struct Varyings
@@ -62,6 +66,7 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 float3 positionWS : TEXCOORD2;
                 float4 color : COLOR;
                 half fogCoord : TEXCOORD3;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             TEXTURE2D(_BaseMap);
@@ -73,20 +78,19 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             float3 _GlobalWindDirection = float3(1, 0, 0);
             float _GlobalWindStrength = 1.0;
             
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseMap_ST;
-                float4 _BaseColor;
-                float _Cutoff;
-                float _Smoothness;
-                float _Metallic;
-                float _WindSpeed;
-                float _WindStrength;
-                // REMOVED: float3 _WindDirection;
-                float _ObjectScale;
-                float _WiggleSpeed;
-                float _WiggleAmount;
-                float _WiggleScale;
-            CBUFFER_END
+            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Smoothness)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Metallic)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WindSpeed)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WindStrength)
+                UNITY_DEFINE_INSTANCED_PROP(float, _ObjectScale)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleSpeed)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleAmount)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleScale)
+            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
             
             // Smooth easing function for natural motion
             float smoothWave(float t)
@@ -98,26 +102,37 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             {
                 Varyings output;
                 
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                
+                // Access instanced properties
+                float windSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WindSpeed);
+                float windStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WindStrength);
+                float objectScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ObjectScale);
+                float wiggleSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleSpeed);
+                float wiggleAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleAmount);
+                float wiggleScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleScale);
+                
                 // Get vertex color channels
                 float swayAmount = input.color.r;
-                float wiggleAmount = input.color.g;
+                float wiggleAmountVertex = input.color.g;
                 
                 // SQUARED sway amount - base (red=0) NEVER moves
                 float swayFactor = swayAmount * swayAmount;
                 
                 // === MAIN WIND SWAY - USES GLOBAL WIND ===
-                float swayTime = _Time.y * _WindSpeed * 0.5;
-                float windSway = smoothWave(swayTime) * _WindStrength * swayFactor;
+                float swayTime = _Time.y * windSpeed * 0.5;
+                float windSway = smoothWave(swayTime) * windStrength * swayFactor;
                 
                 // Use global wind direction and apply global wind strength multiplier
                 float3 globalWindDir = normalize(_GlobalWindDirection);
                 float3 windOffset = globalWindDir * windSway * _GlobalWindStrength;
                 
                 // === LEAF WIGGLE - UV+POSITION+NORMAL VARIATION ===
-                float wiggleTime = _Time.y * _WiggleSpeed;
+                float wiggleTime = _Time.y * wiggleSpeed;
                 
                 // Combine UV coordinates, object position, and normal for unique per-face seeds
-                float uvSeed = (input.uv.x * 17.3 + input.uv.y * 29.7) * _WiggleScale;
+                float uvSeed = (input.uv.x * 17.3 + input.uv.y * 29.7) * wiggleScale;
                 float posSeed = (input.positionOS.x + input.positionOS.y * 2.1 + input.positionOS.z * 3.7) * 0.5;
                 float normalSeed = (input.normalOS.x * 5.3 + input.normalOS.y * 7.1) * 2.0;
                 
@@ -129,14 +144,14 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 float wiggle2 = sin(wiggleTime * 1.4 + seed + 2.5);
                 
                 // Combine into gentle directional flutter
-                float wiggleX = (wiggle1 + wiggle2 * 0.3) * _WiggleAmount * wiggleAmount;
-                float wiggleY = (wiggle2 * 0.5) * _WiggleAmount * wiggleAmount;
-                float wiggleZ = (wiggle1 * 0.4 + wiggle2 * 0.3) * _WiggleAmount * wiggleAmount;
+                float wiggleX = (wiggle1 + wiggle2 * 0.3) * wiggleAmount * wiggleAmountVertex;
+                float wiggleY = (wiggle2 * 0.5) * wiggleAmount * wiggleAmountVertex;
+                float wiggleZ = (wiggle1 * 0.4 + wiggle2 * 0.3) * wiggleAmount * wiggleAmountVertex;
                 
                 float3 wiggleOffset = float3(wiggleX, wiggleY, wiggleZ);
                 
                 // Combine wind and wiggle, scale for large objects
-                float3 totalOffset = (windOffset + wiggleOffset) * _ObjectScale;
+                float3 totalOffset = (windOffset + wiggleOffset) * objectScale;
                 
                 // Apply offset
                 input.positionOS.xyz += totalOffset;
@@ -147,7 +162,9 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 output.positionWS = vertexInput.positionWS;
                 
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
-                output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                
+                float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+                output.uv = input.uv * baseST.xy + baseST.zw;
                 output.color = input.color;
                 
                 // Calculate fog
@@ -158,12 +175,20 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             
             half4 frag(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
+                
+                // Access instanced properties
+                float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+                float cutoff = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff);
+                float smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
+                float metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
+                
                 // Sample texture
                 half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
-                half4 color = baseMap * _BaseColor;
+                half4 color = baseMap * baseColor;
                 
                 // Alpha cutoff
-                clip(color.a - _Cutoff);
+                clip(color.a - cutoff);
                 
                 // Get main light
                 Light mainLight = GetMainLight();
@@ -183,11 +208,11 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 // Specular reflection (Blinn-Phong)
                 float3 halfVector = normalize(lightDir + viewDirWS);
                 float NdotH = saturate(dot(normalWS, halfVector));
-                float specPower = exp2(10.0 * _Smoothness + 1.0);
-                float specular = pow(NdotH, specPower) * _Smoothness;
+                float specPower = exp2(10.0 * smoothness + 1.0);
+                float specular = pow(NdotH, specPower) * smoothness;
                 
                 // Apply metallic
-                half3 specularColor = lerp(mainLight.color, color.rgb * mainLight.color, _Metallic);
+                half3 specularColor = lerp(mainLight.color, color.rgb * mainLight.color, metallic);
                 half3 specularFinal = specular * specularColor * NdotL;
                 
                 // Combine
@@ -209,6 +234,9 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             HLSLPROGRAM
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -219,12 +247,14 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 float3 normalOS : NORMAL;
                 float2 uv : TEXCOORD0;
                 float4 color : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             TEXTURE2D(_BaseMap);
@@ -234,16 +264,16 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             float3 _GlobalWindDirection = float3(1, 0, 0);
             float _GlobalWindStrength = 1.0;
             
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseMap_ST;
-                float _Cutoff;
-                float _WindSpeed;
-                float _WindStrength;
-                float _ObjectScale;
-                float _WiggleSpeed;
-                float _WiggleAmount;
-                float _WiggleScale;
-            CBUFFER_END
+            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WindSpeed)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WindStrength)
+                UNITY_DEFINE_INSTANCED_PROP(float, _ObjectScale)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleSpeed)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleAmount)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleScale)
+            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
             
             // Same smooth wave function
             float smoothWave(float t)
@@ -255,20 +285,31 @@ Shader "Custom/FoliageWindURP_GlobalWind"
             {
                 Varyings output;
                 
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                
+                // Access instanced properties
+                float windSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WindSpeed);
+                float windStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WindStrength);
+                float objectScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ObjectScale);
+                float wiggleSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleSpeed);
+                float wiggleAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleAmount);
+                float wiggleScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleScale);
+                
                 float swayAmount = input.color.r;
-                float wiggleAmount = input.color.g;
+                float wiggleAmountVertex = input.color.g;
                 
                 float swayFactor = swayAmount * swayAmount;
                 
                 // Smoothed sway with global wind
-                float swayTime = _Time.y * _WindSpeed * 0.5;
-                float windSway = smoothWave(swayTime) * _WindStrength * swayFactor;
+                float swayTime = _Time.y * windSpeed * 0.5;
+                float windSway = smoothWave(swayTime) * windStrength * swayFactor;
                 float3 globalWindDir = normalize(_GlobalWindDirection);
                 float3 windOffset = globalWindDir * windSway * _GlobalWindStrength;
                 
-                float wiggleTime = _Time.y * _WiggleSpeed;
+                float wiggleTime = _Time.y * wiggleSpeed;
                 
-                float uvSeed = (input.uv.x * 17.3 + input.uv.y * 29.7) * _WiggleScale;
+                float uvSeed = (input.uv.x * 17.3 + input.uv.y * 29.7) * wiggleScale;
                 float posSeed = (input.positionOS.x + input.positionOS.y * 2.1 + input.positionOS.z * 3.7) * 0.5;
                 float normalSeed = (input.normalOS.x * 5.3 + input.normalOS.y * 7.1) * 2.0;
                 float seed = uvSeed + posSeed + normalSeed;
@@ -276,24 +317,147 @@ Shader "Custom/FoliageWindURP_GlobalWind"
                 float wiggle1 = sin(wiggleTime + seed);
                 float wiggle2 = sin(wiggleTime * 1.4 + seed + 2.5);
                 
-                float wiggleX = (wiggle1 + wiggle2 * 0.3) * _WiggleAmount * wiggleAmount;
-                float wiggleY = (wiggle2 * 0.5) * _WiggleAmount * wiggleAmount;
-                float wiggleZ = (wiggle1 * 0.4 + wiggle2 * 0.3) * _WiggleAmount * wiggleAmount;
+                float wiggleX = (wiggle1 + wiggle2 * 0.3) * wiggleAmount * wiggleAmountVertex;
+                float wiggleY = (wiggle2 * 0.5) * wiggleAmount * wiggleAmountVertex;
+                float wiggleZ = (wiggle1 * 0.4 + wiggle2 * 0.3) * wiggleAmount * wiggleAmountVertex;
                 
-                float3 totalOffset = (windOffset + float3(wiggleX, wiggleY, wiggleZ)) * _ObjectScale;
+                float3 totalOffset = (windOffset + float3(wiggleX, wiggleY, wiggleZ)) * objectScale;
                 
                 input.positionOS.xyz += totalOffset;
                 
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
-                output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                
+                float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+                output.uv = input.uv * baseST.xy + baseST.zw;
                 
                 return output;
             }
             
             half4 ShadowPassFragment(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
+                
+                float cutoff = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff);
                 half alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
-                clip(alpha - _Cutoff);
+                clip(alpha - cutoff);
+                return 0;
+            }
+            ENDHLSL
+        }
+        
+        // DepthOnly pass (required for DOTS rendering)
+        Pass
+        {
+            Name "DepthOnly"
+            Tags { "LightMode" = "DepthOnly" }
+            
+            ZWrite On
+            ColorMask R
+            Cull Off
+            
+            HLSLPROGRAM
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float3 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
+                float4 color : COLOR;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+            
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+            
+            TEXTURE2D(_BaseMap);
+            SAMPLER(sampler_BaseMap);
+            
+            // Global wind properties
+            float3 _GlobalWindDirection = float3(1, 0, 0);
+            float _GlobalWindStrength = 1.0;
+            
+            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Cutoff)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WindSpeed)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WindStrength)
+                UNITY_DEFINE_INSTANCED_PROP(float, _ObjectScale)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleSpeed)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleAmount)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WiggleScale)
+            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+            
+            float smoothWave(float t)
+            {
+                return sin(t) * 0.5 + sin(t * 0.5) * 0.3 + sin(t * 0.25) * 0.2;
+            }
+            
+            Varyings DepthOnlyVertex(Attributes input)
+            {
+                Varyings output;
+                
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                
+                // Access instanced properties
+                float windSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WindSpeed);
+                float windStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WindStrength);
+                float objectScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ObjectScale);
+                float wiggleSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleSpeed);
+                float wiggleAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleAmount);
+                float wiggleScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WiggleScale);
+                
+                float swayAmount = input.color.r;
+                float wiggleAmountVertex = input.color.g;
+                float swayFactor = swayAmount * swayAmount;
+                
+                float swayTime = _Time.y * windSpeed * 0.5;
+                float windSway = smoothWave(swayTime) * windStrength * swayFactor;
+                float3 globalWindDir = normalize(_GlobalWindDirection);
+                float3 windOffset = globalWindDir * windSway * _GlobalWindStrength;
+                
+                float wiggleTime = _Time.y * wiggleSpeed;
+                float uvSeed = (input.uv.x * 17.3 + input.uv.y * 29.7) * wiggleScale;
+                float posSeed = (input.positionOS.x + input.positionOS.y * 2.1 + input.positionOS.z * 3.7) * 0.5;
+                float normalSeed = (input.normalOS.x * 5.3 + input.normalOS.y * 7.1) * 2.0;
+                float seed = uvSeed + posSeed + normalSeed;
+                
+                float wiggle1 = sin(wiggleTime + seed);
+                float wiggle2 = sin(wiggleTime * 1.4 + seed + 2.5);
+                
+                float wiggleX = (wiggle1 + wiggle2 * 0.3) * wiggleAmount * wiggleAmountVertex;
+                float wiggleY = (wiggle2 * 0.5) * wiggleAmount * wiggleAmountVertex;
+                float wiggleZ = (wiggle1 * 0.4 + wiggle2 * 0.3) * wiggleAmount * wiggleAmountVertex;
+                
+                float3 totalOffset = (windOffset + float3(wiggleX, wiggleY, wiggleZ)) * objectScale;
+                input.positionOS.xyz += totalOffset;
+                
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                
+                float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+                output.uv = input.uv * baseST.xy + baseST.zw;
+                
+                return output;
+            }
+            
+            half4 DepthOnlyFragment(Varyings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
+                
+                float cutoff = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Cutoff);
+                half alpha = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv).a;
+                clip(alpha - cutoff);
                 return 0;
             }
             ENDHLSL

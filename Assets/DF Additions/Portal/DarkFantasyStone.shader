@@ -1,4 +1,4 @@
-Shader "Custom/DarkFantasyStone"
+Shader "Custom/DarkFantasyStone_DOTS"
 {
     Properties
     {
@@ -55,7 +55,10 @@ Shader "Custom/DarkFantasyStone"
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
             #pragma multi_compile _ DOTS_INSTANCING_ON
+            
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             
@@ -65,6 +68,7 @@ Shader "Custom/DarkFantasyStone"
                 float3 normalOS : NORMAL;
                 float4 tangentOS : TANGENT;
                 float2 uv : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             struct Varyings
@@ -76,6 +80,7 @@ Shader "Custom/DarkFantasyStone"
                 half fogCoord : TEXCOORD3;
                 float3 tangentWS : TEXCOORD4;
                 float3 bitangentWS : TEXCOORD5;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             TEXTURE2D(_BaseMap);
@@ -83,28 +88,28 @@ Shader "Custom/DarkFantasyStone"
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
             
-            CBUFFER_START(UnityPerMaterial)
-                float4 _BaseMap_ST;
-                float4 _NormalMap_ST;
-                float4 _BaseColor;
-                float4 _DirtColor;
-                float4 _MossColor;
-                float _Smoothness;
-                float _Metallic;
-                float _NormalStrength;
-                float _Darkness;
-                float _Desaturation;
-                float _ContrastBoost;
-                float _DirtAmount;
-                float _DirtContrast;
-                float _WeatheringScale;
-                float _CrackDepth;
-                float _CrackScale;
-                float _MossAmount;
-                float _MossScale;
-                float _AOStrength;
-                float _AOScale;
-            CBUFFER_END
+            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _NormalMap_ST)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _DirtColor)
+                UNITY_DEFINE_INSTANCED_PROP(float4, _MossColor)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Smoothness)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Metallic)
+                UNITY_DEFINE_INSTANCED_PROP(float, _NormalStrength)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Darkness)
+                UNITY_DEFINE_INSTANCED_PROP(float, _Desaturation)
+                UNITY_DEFINE_INSTANCED_PROP(float, _ContrastBoost)
+                UNITY_DEFINE_INSTANCED_PROP(float, _DirtAmount)
+                UNITY_DEFINE_INSTANCED_PROP(float, _DirtContrast)
+                UNITY_DEFINE_INSTANCED_PROP(float, _WeatheringScale)
+                UNITY_DEFINE_INSTANCED_PROP(float, _CrackDepth)
+                UNITY_DEFINE_INSTANCED_PROP(float, _CrackScale)
+                UNITY_DEFINE_INSTANCED_PROP(float, _MossAmount)
+                UNITY_DEFINE_INSTANCED_PROP(float, _MossScale)
+                UNITY_DEFINE_INSTANCED_PROP(float, _AOStrength)
+                UNITY_DEFINE_INSTANCED_PROP(float, _AOScale)
+            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
             
             // Simple hash function for procedural noise
             float hash(float2 p)
@@ -181,6 +186,9 @@ Shader "Custom/DarkFantasyStone"
             {
                 Varyings output;
                 
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                
                 VertexPositionInputs vertexInput = GetVertexPositionInputs(input.positionOS.xyz);
                 VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS, input.tangentOS);
                 
@@ -191,7 +199,8 @@ Shader "Custom/DarkFantasyStone"
                 output.tangentWS = normalInput.tangentWS;
                 output.bitangentWS = normalInput.bitangentWS;
                 
-                output.uv = TRANSFORM_TEX(input.uv, _BaseMap);
+                float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
+                output.uv = input.uv * baseST.xy + baseST.zw;
                 
                 output.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
                 
@@ -200,13 +209,17 @@ Shader "Custom/DarkFantasyStone"
             
             half4 frag(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
+                
                 // Sample base texture
                 half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
-                half3 baseColor = baseMap.rgb * _BaseColor.rgb;
+                float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+                half3 baseColorRGB = baseMap.rgb * baseColor.rgb;
                 
                 // Sample and apply normal map
+                float normalStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _NormalStrength);
                 half4 normalMap = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv);
-                half3 tangentNormal = UnpackNormalScale(normalMap, _NormalStrength);
+                half3 tangentNormal = UnpackNormalScale(normalMap, normalStrength);
                 
                 // Construct TBN matrix and transform normal to world space
                 half3 normalWS = normalize(
@@ -215,36 +228,52 @@ Shader "Custom/DarkFantasyStone"
                     tangentNormal.z * input.normalWS
                 );
                 
+                // Get instanced properties
+                float weatheringScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WeatheringScale);
+                float dirtAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DirtAmount);
+                float dirtContrast = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DirtContrast);
+                float4 dirtColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DirtColor);
+                float crackScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CrackScale);
+                float crackDepth = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CrackDepth);
+                float mossScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MossScale);
+                float mossAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MossAmount);
+                float4 mossColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MossColor);
+                float aoScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _AOScale);
+                float aoStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _AOStrength);
+                float desaturation = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Desaturation);
+                float darkness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Darkness);
+                float contrastBoost = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ContrastBoost);
+                
                 // === PROCEDURAL DIRT AND GRIME ===
-                float dirtNoise = fbm(input.uv, _WeatheringScale);
-                dirtNoise = pow(dirtNoise, _DirtContrast); // Increase contrast
-                float3 dirtColor = lerp(baseColor, _DirtColor.rgb, dirtNoise * _DirtAmount);
+                float dirtNoise = fbm(input.uv, weatheringScale);
+                dirtNoise = pow(dirtNoise, dirtContrast); // Increase contrast
+                float3 dirtColorResult = lerp(baseColorRGB, dirtColor.rgb, dirtNoise * dirtAmount);
                 
                 // === CRACKS ===
-                float crackPattern = cracks(input.uv, _CrackScale);
+                float crackPattern = cracks(input.uv, crackScale);
                 crackPattern = smoothstep(0.0, 0.1, crackPattern);
-                float3 crackedColor = lerp(dirtColor * (1.0 - _CrackDepth), dirtColor, crackPattern);
+                float3 crackedColor = lerp(dirtColorResult * (1.0 - crackDepth), dirtColorResult, crackPattern);
                 
                 // === MOSS (grows in crevices) ===
-                float mossNoise = fbm(input.uv, _MossScale);
+                float mossNoise = fbm(input.uv, mossScale);
                 float mossMask = (1.0 - crackPattern) * mossNoise; // Moss in cracks
                 mossMask = smoothstep(0.3, 0.7, mossMask);
-                float3 mossColor = lerp(crackedColor, _MossColor.rgb, mossMask * _MossAmount);
+                float3 mossColorResult = lerp(crackedColor, mossColor.rgb, mossMask * mossAmount);
                 
                 // === AMBIENT OCCLUSION (procedural) ===
-                float ao = fbm(input.uv, _AOScale);
-                ao = lerp(1.0, ao, _AOStrength);
-                mossColor *= ao;
+                float ao = fbm(input.uv, aoScale);
+                ao = lerp(1.0, ao, aoStrength);
+                mossColorResult *= ao;
                 
                 // === DARK FANTASY ATMOSPHERE ===
                 // Desaturate for grim look
-                mossColor = desaturate(mossColor, _Desaturation);
+                mossColorResult = desaturate(mossColorResult, desaturation);
                 
                 // Darken overall
-                mossColor *= (1.0 - _Darkness);
+                mossColorResult *= (1.0 - darkness);
                 
                 // Boost contrast for gritty feel
-                mossColor = pow(mossColor, 1.0 - _ContrastBoost * 0.3);
+                mossColorResult = pow(mossColorResult, 1.0 - contrastBoost * 0.3);
                 
                 // === LIGHTING ===
                 Light mainLight = GetMainLight();
@@ -253,10 +282,10 @@ Shader "Custom/DarkFantasyStone"
                 
                 // Diffuse (now using normal-mapped normal)
                 float NdotL = saturate(dot(normalWS, lightDir));
-                half3 diffuse = mossColor * mainLight.color * (NdotL * 0.6 + 0.4); // Soft lighting
+                half3 diffuse = mossColorResult * mainLight.color * (NdotL * 0.6 + 0.4); // Soft lighting
                 
                 // Ambient (from light probes, using normal-mapped normal)
-                half3 ambient = SampleSH(normalWS) * mossColor * 0.4;
+                half3 ambient = SampleSH(normalWS) * mossColorResult * 0.4;
                 
                 // Combine
                 half3 finalColor = diffuse + ambient;
@@ -278,6 +307,9 @@ Shader "Custom/DarkFantasyStone"
             HLSLPROGRAM
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
             
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
@@ -286,22 +318,76 @@ Shader "Custom/DarkFantasyStone"
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
             
             Varyings ShadowPassVertex(Attributes input)
             {
                 Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                
                 output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
                 return output;
             }
             
             half4 ShadowPassFragment(Varyings input) : SV_Target
             {
+                UNITY_SETUP_INSTANCE_ID(input);
+                return 0;
+            }
+            ENDHLSL
+        }
+        
+        // DepthOnly pass (required for DOTS rendering)
+        Pass
+        {
+            Name "DepthOnly"
+            Tags { "LightMode" = "DepthOnly" }
+            
+            ZWrite On
+            ColorMask R
+            
+            HLSLPROGRAM
+            #pragma vertex DepthOnlyVertex
+            #pragma fragment DepthOnlyFragment
+            #pragma multi_compile_instancing
+            #pragma instancing_options renderinglayer
+            #pragma multi_compile _ DOTS_INSTANCING_ON
+            
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+            
+            struct Varyings
+            {
+                float4 positionCS : SV_POSITION;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+            
+            Varyings DepthOnlyVertex(Attributes input)
+            {
+                Varyings output;
+                UNITY_SETUP_INSTANCE_ID(input);
+                UNITY_TRANSFER_INSTANCE_ID(input, output);
+                
+                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                return output;
+            }
+            
+            half4 DepthOnlyFragment(Varyings input) : SV_Target
+            {
+                UNITY_SETUP_INSTANCE_ID(input);
                 return 0;
             }
             ENDHLSL
