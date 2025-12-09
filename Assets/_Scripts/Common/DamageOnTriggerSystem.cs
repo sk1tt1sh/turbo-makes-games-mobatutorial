@@ -73,11 +73,10 @@ public struct DamageOnTriggerJob : ITriggerEventsJob {
     ECB.AppendToBuffer(damageReceivingEntity, new DamageBufferElement { Value = damageOnTrigger.Value });
 
     //This is for projectiles that do not penetrate
-    if(damageOnTrigger.DestroyOnHit) {
-      if(IsServer) {
-        ECB.DestroyEntity(damageDealingEntity);
-      }
-    }
-    else ECB.AppendToBuffer(damageDealingEntity, new AlreadyDamagedEntity { Value = damageReceivingEntity });
+    if(damageOnTrigger.DestroyOnHit) 
+      ECB.AddComponent<DestroyEntityTag>(damageDealingEntity);
+    else 
+      ECB.AppendToBuffer(damageDealingEntity, 
+        new AlreadyDamagedEntity { Value = damageReceivingEntity });
   }
 }
