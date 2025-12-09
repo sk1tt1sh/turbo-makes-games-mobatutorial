@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3766561173050480441}
+  - component: {fileID: 5957207218999317378}
   - component: {fileID: 1033643825162039631}
   - component: {fileID: 561154671349422828}
   - component: {fileID: 2174800836030217749}
@@ -16,7 +17,6 @@ GameObject:
   - component: {fileID: 2140803513216949957}
   - component: {fileID: -4163810893793809228}
   - component: {fileID: -4677698941903130138}
-  - component: {fileID: 5957207218999317378}
   - component: {fileID: 4451275172707046093}
   m_Layer: 0
   m_Name: ChampionPrefab
@@ -42,6 +42,21 @@ Transform:
   - {fileID: 6745272296535458335}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5957207218999317378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403193853099150282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5de0a2b1dd3d3a04fb013ae531724ae9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChampionAuthoring
+  MoveSpeed: 7
+  DashSpeed: 30
+  DashDistance: 8
 --- !u!33 &1033643825162039631
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -320,21 +335,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HitPointsAuthoring
   MaxHitpoints: 1000
   HealtBarOffset: {x: 0, y: 2, z: 0}
---- !u!114 &5957207218999317378
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 403193853099150282}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5de0a2b1dd3d3a04fb013ae531724ae9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ChampionAuthoring
-  MoveSpeed: 7
-  DashSpeed: 30
-  DashDistance: 8
 --- !u!114 &4451275172707046093
 MonoBehaviour:
   m_ObjectHideFlags: 0
