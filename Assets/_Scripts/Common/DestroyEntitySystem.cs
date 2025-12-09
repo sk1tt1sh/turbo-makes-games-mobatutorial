@@ -56,7 +56,7 @@ public partial struct DestroyEntitySystem : ISystem {
         ecb.DestroyEntity(entity);
       }
       else if(state.World.IsClient()) {
-        transform.ValueRW.Position = new Unity.Mathematics.float3(0, -1000,0);
+        transform.ValueRW.Position = new Unity.Mathematics.float3(-1000, -1000,-1000);
       }
     }
   }
