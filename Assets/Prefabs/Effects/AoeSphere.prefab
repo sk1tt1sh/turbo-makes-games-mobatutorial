@@ -329,7 +329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efa45c47fc9e4284580e557f04ee1f1e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DestroyOnTimerAuthoring
-  DestroyOnTimer: 3
+  DestroyOnTimer: 1.5
 --- !u!114 &2080749613392995355
 MonoBehaviour:
   m_ObjectHideFlags: 0
