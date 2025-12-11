@@ -19,7 +19,7 @@ public struct DamageBufferElement : IBufferElementData {
   public int DealingEntity;
 }
 
-//This sets up so that this data is only synch'd to other predicted clients as it is not necessary on the
+//This sets up so that this data is only sync'd to other predicted clients as it is not necessary on the
 //owner client. We already know the value is correct on this client.
 [GhostComponent(PrefabType = GhostPrefabType.AllPredicted, OwnerSendType = SendToOwnerType.SendToNonOwner)]
 public struct DamageThisTick : ICommandData {
@@ -109,8 +109,6 @@ public struct  NpcAttackCoolDown : ICommandData{
 
 public struct GameOverOnDestroyTag : IComponentData { }
 
-
-[GhostComponent]
 public struct AutoAttackTarget : IComponentData {
-  [GhostField] public Entity Target;
+  public Entity Target;
 }

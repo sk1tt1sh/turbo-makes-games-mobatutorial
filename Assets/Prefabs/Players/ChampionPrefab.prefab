@@ -57,7 +57,7 @@ MonoBehaviour:
   MoveSpeed: 7
   DashSpeed: 30
   DashDistance: 8
-  AutoAttackRange: 10
+  AutoAttackRange: 20
   AutoAttackCooldown: 0.8
   FirePointOffset: 1.5
   AttackPrefab: {fileID: 8272019531844630938, guid: 2b03f606000f30a46b6094d6aa1f2747,

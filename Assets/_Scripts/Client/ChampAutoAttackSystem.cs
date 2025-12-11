@@ -71,7 +71,13 @@ partial struct ChampAutoAttackSystem : ISystem {
 
       NetworkTick newCooldown = currentTick;
       newCooldown.Add(autoProps.ValueRO.CooldownTicks);
-      aaCooldown.AddCommandData(new AutoAttackCooldown { Tick = currentTick, Value = newCooldown });
+      cdExpiringTick.Value = newCooldown;
+
+      NetworkTick nextTick = currentTick;
+      nextTick.Add(1u);
+      cdExpiringTick.Tick = nextTick;
+
+      aaCooldown.AddCommandData(cdExpiringTick);
     }
     ecb.Playback(state.EntityManager);
     ecb.Dispose();
