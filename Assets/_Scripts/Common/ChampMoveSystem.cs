@@ -15,10 +15,11 @@ public partial struct ChampMoveSystem : ISystem {
   public void OnUpdate(ref SystemState state) {
     float deltaTime = SystemAPI.Time.DeltaTime;
 
-    foreach(var (transform, movePosition, moveSpeed, entity) in
+    foreach(var (transform, movePosition, autoProps, moveSpeed, entity) in
         SystemAPI.Query<
           RefRW<LocalTransform>,
           RefRO<ChampMoveTargetPosition>,
+          RefRO<ChampAutoAttackProperties>,
           RefRO<CharacterMoveSpeed>
           >()
         .WithNone<ChampDashingTag>()
@@ -38,7 +39,7 @@ public partial struct ChampMoveSystem : ISystem {
           moveTarget.y = transform.ValueRO.Position.y;
 
           //TODO: Add a component to champ for their auto attack range
-          if(math.distance(transform.ValueRO.Position, moveTarget) < 9f) {
+          if(math.distance(transform.ValueRO.Position, moveTarget) <= autoProps.ValueRO.Range) {
             //Debug.Log($"Within auto-range not moving - {math.distance(transform.ValueRO.Position, moveTarget)}");
             continue;
           }

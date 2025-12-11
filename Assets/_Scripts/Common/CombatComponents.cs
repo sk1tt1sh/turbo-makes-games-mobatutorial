@@ -80,15 +80,15 @@ public struct AbilityMoveSpeed : IComponentData {
   public float Value;
 }
 
+public struct AutoAttackMoveSpeed : IComponentData {
+  public float Value;
+}
+
 public struct ChargeAbilityOwner : IComponentData {
   [GhostField]public Entity Owner;
 }
 
 public struct NpcTargetRadius : IComponentData {
-  public float Value;
-}
-
-public struct NpcAgroRadius : IComponentData {
   public float Value;
 }
 
@@ -108,3 +108,9 @@ public struct  NpcAttackCoolDown : ICommandData{
 }
 
 public struct GameOverOnDestroyTag : IComponentData { }
+
+
+[GhostComponent]
+public struct AutoAttackTarget : IComponentData {
+  [GhostField] public Entity Target;
+}

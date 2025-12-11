@@ -9,7 +9,8 @@ public partial struct AbilityMoveSystem : ISystem {
   public void OnUpdate(ref SystemState state) {
     foreach(var (ability, transform) in 
         SystemAPI.Query<AbilityMoveSpeed, RefRW<LocalTransform>>()
-        .WithAll<Simulate>()) {
+        .WithAll<Simulate>()
+        .WithNone<AutoAttackTarget>()) {
       transform.ValueRW.Position += transform.ValueRO.Forward() * ability.Value * SystemAPI.Time.DeltaTime;
     }
   }

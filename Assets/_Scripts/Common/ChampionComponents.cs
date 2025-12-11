@@ -39,6 +39,13 @@ public struct ChampTargetEntity : IInputComponentData {
   [GhostField] public Entity Target;
 }
 
+public struct ChampAutoAttackProperties : IComponentData {
+  public float Range;
+  public uint CooldownTicks;
+  public float FirePointOffset;
+  public Entity AttackPrefab;
+}
+
 //This will use the "Input.Set()" event if it's "FirstFullServerTick"
 [GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
 public struct AbilityInput : IInputComponentData {
@@ -52,4 +59,9 @@ public struct AbilityInput : IInputComponentData {
 [GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
 public struct AimInput : IInputComponentData {
   [GhostField(Quantization = 0)] public float3 Value;
+}
+
+public struct AutoAttackCooldown : ICommandData {
+  public NetworkTick Tick { get; set; }
+  public NetworkTick Value;
 }

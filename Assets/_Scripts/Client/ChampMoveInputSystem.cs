@@ -70,10 +70,15 @@ public partial class ChampMoveInputSystem : SystemBase {
 
     if(collisionWorld.CastRay(selectionInput, out Unity.Physics.RaycastHit closestHit)) {
       Entity champEntity = SystemAPI.GetSingletonEntity<OwnerChampTag>();
+      MobaTeam champTeam = SystemAPI.GetComponent<MobaTeam>(champEntity);
       Entity champTargetEntity = Entity.Null;
 
-      foreach(var (xform, entity) in SystemAPI.Query<RefRO<LocalTransform>>().WithEntityAccess()) {
-        if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f) {
+      foreach(var (xform, mobaTeam, entity) in SystemAPI.Query<RefRO<LocalTransform>,RefRO<MobaTeam>>()
+          .WithEntityAccess()) {
+        //TODO: Add component for adjusting hit distance precision on auto attack
+        if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f
+          && mobaTeam.ValueRO.Value != champTeam.Value
+          ) {
           //Debug.Log("Found a nearby entity where move select hit");
           champTargetEntity = entity;
         }
@@ -84,7 +89,6 @@ public partial class ChampMoveInputSystem : SystemBase {
       //Therefore the check here indicates no target entity was found in the above idiomatic foreach
       //Additionally, the player clicked away from the existing target and wants to move elsewhere
       if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetEntity>(champEntity)) {
-        //Debug.Log("Removing ChampTargetEntity");
         EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = Entity.Null });
       }
       else {

@@ -66,7 +66,7 @@ public partial struct BeginSkillshotSystem : ISystem {
       curTargetTick.SkillShotAbility = newCdTargetTick;
 
       var nextTick = currentTick;
-      nextTick.Add(2u);
+      nextTick.Add(1u);
       curTargetTick.Tick = nextTick;
 
       abilityCdTargetTicks.AddCommandData(curTargetTick);
