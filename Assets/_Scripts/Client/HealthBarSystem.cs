@@ -26,6 +26,14 @@ public partial struct HealthBarSystem : ISystem {
 
       var healthBarPrefab = SystemAPI.ManagedAPI.GetSingleton<UIPrefabs>().HealthBar;
       var spawnPos = transform.Position + hpOffset.Value;
+      
+      // Check if spawn position is valid before instantiating
+      if(float.IsNaN(spawnPos.x) || float.IsNaN(spawnPos.y) || float.IsNaN(spawnPos.z)) {
+        Debug.LogError($"Cannot spawn health bar for entity {entity.Index}: Invalid spawn position " +
+                       $"(Transform={transform.Position}, Offset={hpOffset.Value})");
+        continue;
+      }
+      
       var newHpBar = Object.Instantiate(healthBarPrefab, spawnPos, Quaternion.identity);
       // We pass these in as max because we know it's effectively spawning the component
       // on an enemy that's full hp. 
@@ -34,23 +42,24 @@ public partial struct HealthBarSystem : ISystem {
       ecb.AddComponent(entity, new HealthBarUIReference { Value = newHpBar});
     }
 
-    var nanFloat3 = new float3(float.NaN, float.NaN, float.NaN);
     // Moves the position and value of the hp bars
     foreach(var (transform, hpOffset, maxHP, currentHp, hpUI, entity) in
        SystemAPI.Query<LocalTransform, HealthBarOffset, MaxHitPoints, CurrentHitPoints, HealthBarUIReference>()
        .WithEntityAccess()) {
 
-      if(transform.Position.Equals(nanFloat3) || hpOffset.Value.Equals(nanFloat3)) {
-        Debug.LogWarning($"NanFloat on transform for entity {entity.Index}");
+      // Calculate the health bar position
+      var hpPosition = transform.Position + hpOffset.Value;
+      
+      // Check if the final position is valid
+      if(float.IsNaN(hpPosition.x) || float.IsNaN(hpPosition.y) || float.IsNaN(hpPosition.z)) {
+        Debug.LogWarning($"NaN position for entity {entity.Index}: " +
+                         $"Transform={transform.Position}, Offset={hpOffset.Value}");
         continue;
       }
 
-        // We should optimize this later to only update when position changes
-        var hpPosition = transform.Position + hpOffset.Value;
-
-      if(hpPosition.Equals(nanFloat3)) continue;
-
+      // Safe to set position now
       hpUI.Value.transform.position = hpPosition;
+      
       // We should optimize this later to only update when hp changes
       SetHealthBar(hpUI.Value, currentHp.Value, maxHP.Value);
     }
