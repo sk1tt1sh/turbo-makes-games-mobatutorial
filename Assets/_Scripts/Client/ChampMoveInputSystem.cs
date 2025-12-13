@@ -1,129 +1,83 @@
+// ChampMoveInputSystem.cs
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
-using Unity.Physics;
-using Unity.Transforms;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
+/// <summary>
+/// WASD camera-relative movement input for DOTS characters.
+/// Replaces Troy's click-to-move system with MMO-style WASD controls.
+/// </summary>
 [UpdateInGroup(typeof(GhostInputSystemGroup))]
-public partial class ChampMoveInputSystem : SystemBase {
-  private MobaInputActions _inputActions;
-  private CollisionFilter _selectionFilter;
-
-  protected override void OnCreate() {
-    _inputActions = new MobaInputActions();
-    //This maps to the physics category names
-    _selectionFilter = new CollisionFilter {
-      BelongsTo = 1 << 5, //Raycasts group 
-      CollidesWith = 1 << 0 //GroundPlane
-    };
-    RequireForUpdate<OwnerChampTag>();
-  }
-
-  protected override void OnStartRunning() {
-    _inputActions.Enable();
-    _inputActions.GameplayMap.SelectMovePosition.performed += OnSelectMovePosition;
-    _inputActions.GameplayMap.ConfirmSkillShotAbility.performed += OnSkillShotConfirm;
-  }
-
-  protected override void OnStopRunning() {
-    _inputActions.GameplayMap.SelectMovePosition.performed -= OnSelectMovePosition;
-    _inputActions.Disable();
-  }
-
-  protected override void OnUpdate() {
-  }
-
-  private void OnSkillShotConfirm(InputAction.CallbackContext obj) {
-    CollisionWorld collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-    RaycastInput selectionInput = GetRayCastData(ref collisionWorld);
-
-    if(collisionWorld.CastRay(selectionInput, out Unity.Physics.RaycastHit closestHit)) {
-      Entity champEntity = SystemAPI.GetSingletonEntity<OwnerChampTag>();
-      var entityTransform = EntityManager.GetComponentData<LocalTransform>(champEntity);
-      if(!EntityManager.HasComponent<AimChargeAbilityTag>(champEntity)) {
-        return;
-      }
-      if(!EntityManager.HasComponent<CharacterMoveSpeed>(champEntity)) {
-        return;
-      }
-
-      var dashInfo = EntityManager.GetComponentData<CharacterMoveSpeed>(champEntity);
-      float3 offset = closestHit.Position - entityTransform.Position;
-      float distance = math.length(offset);
-      var targetPosition = entityTransform.Position + math.normalize(offset) * dashInfo.DashDistance;
-      targetPosition.y = entityTransform.Position.y;
-      //Debug.Log($"Closest hit = {closestHit.Position}, current position {entityTransform.Position} - Distance {math.distance(closestHit.Position,entityTransform.Position)} - Clamped distance: {targetPosition}");
-      EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {
-        Value = targetPosition
-      });
+public partial class ChampMoveInputSystem : SystemBase
+{
+    protected override void OnCreate()
+    {
+        RequireForUpdate<OwnerChampTag>();
     }
-  }
 
-  private void OnSelectMovePosition(InputAction.CallbackContext obj) {
-    //Debug.Log("OnSelectMovePosition");
-    CollisionWorld collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-    RaycastInput selectionInput = GetRayCastData(ref collisionWorld);
+    protected override void OnUpdate()
+    {
+        // Only process input for the local player's champion
+        if (!SystemAPI.TryGetSingletonEntity<OwnerChampTag>(out Entity champEntity))
+            return;
 
-    if(collisionWorld.CastRay(selectionInput, out Unity.Physics.RaycastHit closestHit)) {
-      Entity champEntity = SystemAPI.GetSingletonEntity<OwnerChampTag>();
-      MobaTeam champTeam = SystemAPI.GetComponent<MobaTeam>(champEntity);
-      Entity champTargetEntity = Entity.Null;
-
-      foreach(var (xform, mobaTeam, entity) in SystemAPI.Query<RefRO<LocalTransform>,RefRO<MobaTeam>>()
-          .WithEntityAccess()) {
-        //TODO: Add component for adjusting hit distance precision on auto attack
-        if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f
-          && mobaTeam.ValueRO.Value != champTeam.Value
-          ) {
-          //Debug.Log("Found a nearby entity where move select hit");
-          champTargetEntity = entity;
+        // Get camera for camera-relative movement
+        Camera mainCamera = Camera.main;
+        if (mainCamera == null)
+        {
+            Debug.LogWarning("No main camera found for WASD input!");
+            return;
         }
-      }
 
-      //Remove the auto attack target
-      //Entities created with new Entity() have a 0 value index
-      //Therefore the check here indicates no target entity was found in the above idiomatic foreach
-      //Additionally, the player clicked away from the existing target and wants to move elsewhere
-      if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetGhost>(champEntity)) {
-          EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = 0 });
-      }
-      else {
-        //Debug.Log($"Setting targetEntity to {champTargetEntity.Index}");
-        if(SystemAPI.HasComponent<GhostInstance>(champTargetEntity)) {
-          var targetGhostId = SystemAPI.GetComponent<GhostInstance>(champTargetEntity);
-          //Debug.Log($"RAYCAST HIT ON GHOST! {targetGhostId.ghostId} on entity {champTargetEntity.Index}");
-          EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = targetGhostId.ghostId });
+        // Read WASD input
+        float forward = 0f;
+        float strafe = 0f;
+
+        if (Input.GetKey(KeyCode.W)) forward += 1f;
+        if (Input.GetKey(KeyCode.S)) forward -= 1f;
+        if (Input.GetKey(KeyCode.A)) strafe -= 1f;
+        if (Input.GetKey(KeyCode.D)) strafe += 1f;
+
+        // Get current position (needed both for movement and for STOP)
+        var currentTransform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(champEntity);
+
+        // If no input, STOP by setting target to current position
+        if (Mathf.Abs(forward) < 0.01f && Mathf.Abs(strafe) < 0.01f)
+        {
+            EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition
+            {
+                Value = currentTransform.Position
+            });
+            return;
         }
-        else
-          Debug.LogWarning("Got a raycast hit but the entity doesn't have a GhostId");
-      }
 
-      EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {
-        Value = closestHit.Position
-      });
+        // Calculate camera-relative movement direction
+        Vector3 cameraForward = mainCamera.transform.forward;
+        cameraForward.y = 0f;
+        cameraForward.Normalize();
+
+        Vector3 cameraRight = mainCamera.transform.right;
+        cameraRight.y = 0f;
+        cameraRight.Normalize();
+
+        Vector3 moveDirection = (cameraForward * forward + cameraRight * strafe).normalized;
+
+        // Set target position a short distance ahead in movement direction (tighter feel than 10 units)
+        float lookAhead = 1.0f; // try 0.5f–2.0f to taste
+        float3 targetPosition = currentTransform.Position + (float3)(moveDirection * lookAhead);
+
+        // Update the move target component
+        EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition
+        {
+            Value = targetPosition
+        });
+
+        // Clear any auto-attack target when moving (optional - comment out if you don't want this)
+        if (SystemAPI.HasComponent<ChampTargetGhost>(champEntity))
+        {
+            EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = 0 });
+        }
     }
-  }
-
-  private RaycastInput GetRayCastData(ref CollisionWorld collisionWorld) {
-    //This get call looks for an Entity where EntityManager.AddComponent<T>(entity) call has been made
-    //In this case that call occurs in MainCameraAuthoring Baker.
-    Entity cameraEntity = SystemAPI.GetSingletonEntity<MainCameraTag>();
-    Camera mainCamera = EntityManager.GetComponentObject<MainCamera>(cameraEntity).Value;
-
-    float3 mousePosition = Input.mousePosition;
-    mousePosition.z = 100f;
-    Vector3 worldPosition = mainCamera.ScreenToWorldPoint(mousePosition);
-
-    RaycastInput selectionInput = new RaycastInput {
-      Start = mainCamera.transform.position,
-      End = worldPosition,
-      Filter = _selectionFilter
-    };
-
-    return selectionInput;
-  }
 }

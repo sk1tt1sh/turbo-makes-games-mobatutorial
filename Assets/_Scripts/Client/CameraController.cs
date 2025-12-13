@@ -1,126 +1,89 @@
-﻿using Unity.Cinemachine;
-using Unity.Entities;
+﻿using Unity.Entities;
+using Unity.Mathematics;
+using Unity.Transforms;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour {
-  [SerializeField] private CinemachineVirtualCameraBase _cinemachineVirtualCamera;
+/// <summary>
+/// Smoothly follows DOTS player entity for Cinemachine camera target.
+/// Handles the timing mismatch between DOTS tick rate and visual frame rate.
+/// </summary>
+public class CameraTargetFollowLocalChamp : MonoBehaviour
+{
+    [Header("Offset relative to the champ position")]
+    public Vector3 offset = new Vector3(0f, 1.6f, 0f);
 
-  [Header("Move Settings")]
-  [SerializeField] private bool _drawBounds;
-  [SerializeField] private Bounds _cameraBounds;
-  [SerializeField] private float _camSpeed;
-  [SerializeField] private Vector2 _screenPercentageDetection;
+    [Header("Smoothing - INCREASE this to reduce jank")]
+    [Range(0f, 30f)]
+    public float positionSmoothing = 15f; // Higher = smoother but more lag
+    
+    [Range(0f, 30f)]
+    public float rotationSmoothing = 10f; // Smooth rotation too
 
-  [Header("Zoom Settings")]
-  [SerializeField] private float _minZoomDistance;
-  [SerializeField] private float _maxZoomDistance;
-  [SerializeField] private float _zoomSpeed;
+    EntityManager _em;
+    EntityQuery _localChampQuery;
+    Entity _cachedChamp;
+    
+    // Store previous position for better interpolation
+    private Vector3 _targetPosition;
+    private Quaternion _targetRotation;
 
-  [Header("Camera Start Positions")]
-  [SerializeField] private Vector3 _redTeamPosition = new(50f, 0f, 50f);
-  [SerializeField] private Vector3 _blueTeamPosition = new(-50f, 0f, -50f);
-  [SerializeField] private Vector3 _spectatorPosition = new(0f, 0f, 0f);
+    void Start()
+    {
+        if (World.DefaultGameObjectInjectionWorld == null) return;
 
-  private Vector2 _normalScreenPercentage;
-  private Vector2 NormalMousePos => new Vector2(Input.mousePosition.x / Screen.width, Input.mousePosition.y / Screen.height);
-  private bool InScreenLeft => NormalMousePos.x < _normalScreenPercentage.x && Application.isFocused;
-  private bool InScreenRight => NormalMousePos.x > 1 - _normalScreenPercentage.x && Application.isFocused;
-  private bool InScreenTop => NormalMousePos.y < _normalScreenPercentage.y && Application.isFocused;
-  private bool InScreenBottom => NormalMousePos.y > 1 - _normalScreenPercentage.y && Application.isFocused;
+        _em = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-  private CinemachinePositionComposer _transposer;
-  private EntityManager _entityManager;
-  private EntityQuery _teamControllerQuery;
-  private EntityQuery _localChampQuery;
-  private bool _cameraSet;
-
-  private void Awake() {
-    _normalScreenPercentage = _screenPercentageDetection * 0.01f;
-    _transposer = _cinemachineVirtualCamera.GetComponent<CinemachinePositionComposer>();
-  }
-
-  private void Start() {
-    if(World.DefaultGameObjectInjectionWorld == null) return;
-    _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-    _teamControllerQuery = _entityManager.CreateEntityQuery(typeof(ClientTeamRequest));
-    _localChampQuery = _entityManager.CreateEntityQuery(typeof(OwnerChampTag));
-
-    // Move the camera to the base corresponding to the team the player is on.
-    // Spectators' cameras will start in the center of the map
-    if(_teamControllerQuery.TryGetSingleton<ClientTeamRequest>(out var requestedTeam)) {
-      var team = requestedTeam.Value;
-      var cameraPosition = team switch {
-        TeamType.Blue => _blueTeamPosition,
-        TeamType.Red => _redTeamPosition,
-        _ => _spectatorPosition
-      };
-      transform.position = cameraPosition;
-
-      if(team != TeamType.AutoAssign) {
-        _cameraSet = true;
-      }
-    }
-  }
-
-  private void OnValidate() {
-    _normalScreenPercentage = _screenPercentageDetection * 0.01f;
-  }
-
-  private void Update() {
-    SetCameraForAutoAssignTeam();
-    MoveCamera();
-    ZoomCamera();
-  }
-
-  private void MoveCamera() {
-    if(InScreenLeft) {
-      transform.position += Vector3.left * (_camSpeed * Time.deltaTime);
+        // OwnerChampTag is what your input system already relies on for "this is my champ"
+        _localChampQuery = _em.CreateEntityQuery(
+            ComponentType.ReadOnly<OwnerChampTag>(),
+            ComponentType.ReadOnly<LocalTransform>()
+        );
+        
+        // Initialize target position
+        _targetPosition = transform.position;
+        _targetRotation = transform.rotation;
     }
 
-    if(InScreenRight) {
-      transform.position += Vector3.right * (_camSpeed * Time.deltaTime);
+    void LateUpdate()
+    {
+        // Check if world and entity manager still exist
+        if (World.DefaultGameObjectInjectionWorld == null) return;
+
+        // Reacquire if needed
+        if (_cachedChamp == Entity.Null || !_em.Exists(_cachedChamp))
+        {
+            if (_localChampQuery.IsEmptyIgnoreFilter) return;
+            _cachedChamp = _localChampQuery.GetSingletonEntity();
+        }
+
+        // Get DOTS entity transform
+        var lt = _em.GetComponentData<LocalTransform>(_cachedChamp);
+        
+        // Calculate desired position (DOTS position + offset)
+        Vector3 desiredPosition = (Vector3)lt.Position + offset;
+        Quaternion desiredRotation = lt.Rotation;
+
+        // Smooth interpolation to reduce jank
+        if (positionSmoothing > 0f)
+        {
+            _targetPosition = Vector3.Lerp(_targetPosition, desiredPosition, Time.deltaTime * positionSmoothing);
+        }
+        else
+        {
+            _targetPosition = desiredPosition; // Instant snap if smoothing = 0
+        }
+
+        if (rotationSmoothing > 0f)
+        {
+            _targetRotation = Quaternion.Slerp(_targetRotation, desiredRotation, Time.deltaTime * rotationSmoothing);
+        }
+        else
+        {
+            _targetRotation = desiredRotation;
+        }
+
+        // Apply to this GameObject
+        transform.position = _targetPosition;
+        transform.rotation = _targetRotation;
     }
-
-    if(InScreenTop) {
-      transform.position += Vector3.back * (_camSpeed * Time.deltaTime);
-    }
-
-    if(InScreenBottom) {
-      transform.position += Vector3.forward * (_camSpeed * Time.deltaTime);
-    }
-
-    if(!_cameraBounds.Contains(transform.position)) {
-      transform.position = _cameraBounds.ClosestPoint(transform.position);
-    }
-  }
-
-  private void ZoomCamera() {
-    if(Mathf.Abs(Input.mouseScrollDelta.y) > float.Epsilon) {
-      _transposer.CameraDistance -= Input.mouseScrollDelta.y * _zoomSpeed * Time.deltaTime;
-      _transposer.CameraDistance =
-          Mathf.Clamp(_transposer.CameraDistance, _minZoomDistance, _maxZoomDistance);
-    }
-  }
-
-  private void SetCameraForAutoAssignTeam() {
-    if(!_cameraSet) {
-      if(_localChampQuery.TryGetSingletonEntity<OwnerChampTag>(out var localChamp)) {
-        var team = _entityManager.GetComponentData<MobaTeam>(localChamp).Value;
-        var cameraPosition = team switch {
-          TeamType.Blue => _blueTeamPosition,
-          TeamType.Red => _redTeamPosition,
-          _ => _spectatorPosition
-        };
-        transform.position = cameraPosition;
-        _cameraSet = true;
-      }
-    }
-  }
-
-  private void OnDrawGizmos() {
-    if(!_drawBounds) return;
-
-    Gizmos.color = Color.yellow;
-    Gizmos.DrawWireCube(_cameraBounds.center, _cameraBounds.size);
-  }
 }
