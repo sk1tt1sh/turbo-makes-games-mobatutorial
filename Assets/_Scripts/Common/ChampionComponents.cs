@@ -35,8 +35,8 @@ public struct ChampMoveTargetPosition : IInputComponentData {
 }
 
 [GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
-public struct ChampTargetEntity : IInputComponentData {
-  [GhostField] public Entity Target;
+public struct ChampTargetGhost : IInputComponentData {
+  [GhostField] public int TargetId;
 }
 
 public struct ChampAutoAttackProperties : IComponentData {
@@ -61,6 +61,7 @@ public struct AimInput : IInputComponentData {
   [GhostField(Quantization = 0)] public float3 Value;
 }
 
+[GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
 public struct AutoAttackCooldown : ICommandData {
   public NetworkTick Tick { get; set; }
   public NetworkTick Value;

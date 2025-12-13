@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using Unity.VisualScripting;
+using UnityEngine;
 
 [UpdateInGroup(typeof(PhysicsSystemGroup))]
 [UpdateAfter(typeof(PhysicsSimulationGroup))]
@@ -56,27 +57,35 @@ public struct DamageOnTriggerJob : ITriggerEventsJob {
     else {
       return;
     }
-
+    //Debug.Log($"TRIGGER: Damage entity {damageDealingEntity.Index} hit {damageReceivingEntity.Index}");
     // Don't apply damage multiple times
     var alreadyDamagedBuffer = AlreadyDamagedLookup[damageDealingEntity];
     foreach(var alreadyDamagedEntity in alreadyDamagedBuffer) {
-      if(alreadyDamagedEntity.Value.Equals(damageReceivingEntity)) return;
+      if(alreadyDamagedEntity.Value.Equals(damageReceivingEntity)) {
+        //Debug.Log($"  -> SKIPPED: Already damaged {damageReceivingEntity.Index}");
+        return;
+      }
     }
 
     // Ignore friendly fire
     if(TeamLookup.TryGetComponent(damageDealingEntity, out var damageDealingTeam) &&
         TeamLookup.TryGetComponent(damageReceivingEntity, out var damageReceivingTeam)) {
-      if(damageDealingTeam.Value == damageReceivingTeam.Value) return;
+      if(damageDealingTeam.Value == damageReceivingTeam.Value) {
+        //Debug.Log($"  -> SKIPPED: Friendly fire {damageDealingTeam.Value}");
+        return;
+      }
     }
 
     var damageOnTrigger = DamageOnTriggerLookup[damageDealingEntity];
     ECB.AppendToBuffer(damageReceivingEntity, new DamageBufferElement { Value = damageOnTrigger.Value });
 
     //This is for projectiles that do not penetrate
-    if(damageOnTrigger.DestroyOnHit) 
+    if(damageOnTrigger.DestroyOnHit) {
+      //Debug.Log($"  -> DESTROYING projectile {damageDealingEntity.Index} (DestroyOnHit=true)");
       ECB.AddComponent<DestroyEntityTag>(damageDealingEntity);
-    else 
-      ECB.AppendToBuffer(damageDealingEntity, 
-        new AlreadyDamagedEntity { Value = damageReceivingEntity });
+    }
+    else
+      ECB.AppendToBuffer(damageDealingEntity,
+      new AlreadyDamagedEntity { Value = damageReceivingEntity });
   }
 }

@@ -88,13 +88,18 @@ public partial class ChampMoveInputSystem : SystemBase {
       //Entities created with new Entity() have a 0 value index
       //Therefore the check here indicates no target entity was found in the above idiomatic foreach
       //Additionally, the player clicked away from the existing target and wants to move elsewhere
-      if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetEntity>(champEntity)) {
-        EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = Entity.Null });
+      if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetGhost>(champEntity)) {
+          EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = 0 });
       }
       else {
         //Debug.Log($"Setting targetEntity to {champTargetEntity.Index}");
-        
-        EntityManager.SetComponentData(champEntity, new ChampTargetEntity { Target = champTargetEntity });
+        if(SystemAPI.HasComponent<GhostInstance>(champTargetEntity)) {
+          var targetGhostId = SystemAPI.GetComponent<GhostInstance>(champTargetEntity);
+          //Debug.Log($"RAYCAST HIT ON GHOST! {targetGhostId.ghostId} on entity {champTargetEntity.Index}");
+          EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = targetGhostId.ghostId });
+        }
+        else
+          Debug.LogWarning("Got a raycast hit but the entity doesn't have a GhostId");
       }
 
       EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {

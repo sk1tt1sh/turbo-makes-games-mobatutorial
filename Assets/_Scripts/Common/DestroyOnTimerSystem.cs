@@ -5,13 +5,13 @@ using Unity.NetCode;
 using UnityEngine;
 
 public partial struct DestroyOnTimerSystem : ISystem {
-  //[BurstCompile]
+  [BurstCompile]
   public void OnCreate(ref SystemState state) {
     state.RequireForUpdate<NetworkTime>();
     state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
   }
 
-  //[BurstCompile]
+  [BurstCompile]
   public void OnUpdate(ref SystemState state) {
     var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
     var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);

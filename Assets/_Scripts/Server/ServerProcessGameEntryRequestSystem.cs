@@ -44,6 +44,7 @@ public partial struct ServerProcessGameEntryRequestSystem : ISystem {
 
 
       Entity newChamp = ecb.Instantiate(championPrefab);
+
       ecb.SetName(newChamp, "Champion");
       float3 spawnPos;
 

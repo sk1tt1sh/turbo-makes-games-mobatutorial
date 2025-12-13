@@ -52,7 +52,7 @@ public partial struct DestroyEntitySystem : ISystem {
             NetworkId = SystemAPI.GetComponent<NetworkId>(networkEntity).Value
           });
         }
-
+        //Debug.Log($"Destroying [{entity.Index}]");
         ecb.DestroyEntity(entity);
       }
       else if(state.World.IsClient()) {

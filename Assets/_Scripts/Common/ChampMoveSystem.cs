@@ -30,12 +30,12 @@ public partial struct ChampMoveSystem : ISystem {
       float3 moveTarget;
 
       //Check if the champ has an autoattack target and override the move position
-      if(SystemAPI.HasComponent<ChampTargetEntity>(entity)) {
-        var target = SystemAPI.GetComponentRW<ChampTargetEntity>(entity);
-        var hasLocalTransform = SystemAPI.HasComponent<LocalTransform>(target.ValueRO.Target);
+      if(SystemAPI.HasComponent<ChampTargetGhost>(entity)) {
+        var target = SystemAPI.GetComponentRW<ChampTargetGhost>(entity);
+        var hasLocalTransform = false;//SystemAPI.HasComponent<LocalTransform>(target.ValueRO.Target);
 
         if(hasLocalTransform) {
-          var targetPos = SystemAPI.GetComponent<LocalTransform>(target.ValueRO.Target);
+          var targetPos = SystemAPI.GetComponent<LocalTransform>(Entity.Null);
           moveTarget = targetPos.Position;
           moveTarget.y = transform.ValueRO.Position.y;
 

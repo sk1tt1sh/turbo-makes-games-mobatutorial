@@ -38,7 +38,7 @@ class ChampionAuthoring : MonoBehaviour {
         FirePointOffset = authoring.FirePointOffset,
         AttackPrefab = GetEntity(authoring.AttackPrefab,TransformUsageFlags.Dynamic)
       });
-      AddComponent<ChampTargetEntity>(entity);
+      AddComponent<ChampTargetGhost>(entity);
       AddComponent<AbilityInput>(entity);
       AddComponent<AimInput>(entity);
       AddComponent<NetworkEntityReference>(entity);

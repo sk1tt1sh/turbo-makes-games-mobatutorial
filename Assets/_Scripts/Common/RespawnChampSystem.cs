@@ -41,7 +41,7 @@ public partial class RespawnChampSystem : SystemBase {
 
             ecb.SetComponent(newChamp, new GhostOwner { NetworkId = networkId });
             ecb.SetComponent(newChamp, new MobaTeam { Value = playerSpawnInfo.Team });
-            ecb.SetComponent(newChamp, new ChampTargetEntity { Target = Entity.Null });
+            ecb.SetComponent(newChamp, new ChampTargetGhost { TargetId = 0 });
             ecb.SetComponent(newChamp, new ChampMoveTargetPosition { Value = playerSpawnInfo.SpawnPosition });
             ecb.SetComponent(newChamp, new NetworkEntityReference { Value = curRespawn.NetworkEntity });
             ecb.SetComponent(newChamp, LocalTransform.FromPosition(playerSpawnInfo.SpawnPosition));
