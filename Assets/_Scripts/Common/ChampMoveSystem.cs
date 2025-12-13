@@ -14,6 +14,7 @@ public partial struct ChampMoveSystem : ISystem {
 
   public void OnUpdate(ref SystemState state) {
     float deltaTime = SystemAPI.Time.DeltaTime;
+    const float MOVEMENT_THRESHOLD = 0.1f; // Deadzone to prevent micro-jitter
 
     foreach(var (transform, movePosition, autoProps, moveSpeed, entity) in
         SystemAPI.Query<
@@ -55,12 +56,19 @@ public partial struct ChampMoveSystem : ISystem {
         moveTarget = movePosition.ValueRO.Value;
         moveTarget.y = transform.ValueRO.Position.y;
 
-        if(math.distance(transform.ValueRO.Position, moveTarget) < 1f) {
+        // Stop if within threshold - prevents micro-jitter from floating point drift
+        if(math.distance(transform.ValueRO.Position, moveTarget) < MOVEMENT_THRESHOLD) {
           continue;
         }
       }
 
       float3 moveDirection = math.normalize(moveTarget - transform.ValueRO.Position);
+      
+      // Additional safety: don't move if direction is invalid or too small
+      if(math.lengthsq(moveDirection) < 0.001f) {
+        continue;
+      }
+      
       var moveVector = moveDirection * moveSpeed.ValueRO.Value * deltaTime;
       transform.ValueRW.Position += moveVector;
       transform.ValueRW.Rotation = quaternion.LookRotationSafe(moveDirection, math.up());

@@ -52,10 +52,17 @@ public class GlobalWindManager : MonoBehaviour
     private float nextGustTime;
     private float gustEndTime;
     
+    void Awake()
+    {
+        // CRITICAL: Set shader globals IMMEDIATELY before subscene baking
+        // This ensures DOTS entities have wind values when they first render
+        baseWindDirection = windDirection.normalized;
+        Shader.SetGlobalVector(GlobalWindDirection, baseWindDirection);
+        Shader.SetGlobalFloat(GlobalWindStrength, windStrength);
+    }
+    
     void Start()
     {
-        // Normalize and cache base direction
-        baseWindDirection = windDirection.normalized;
         
         // Initialize gust timing
         if (enableGusts)

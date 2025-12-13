@@ -1,4 +1,4 @@
-Shader "Custom/UltimatePortalCombined_DOTS"
+Shader "Custom/UltimatePortalCombined_SimpleDOTS"
 {
     Properties
     {
@@ -67,6 +67,7 @@ Shader "Custom/UltimatePortalCombined_DOTS"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 4.5
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
             #pragma multi_compile _ DOTS_INSTANCING_ON
@@ -93,39 +94,40 @@ Shader "Custom/UltimatePortalCombined_DOTS"
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
             
-            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _BackgroundTex_ST)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _MainTex_ST)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _BackgroundColor)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _SpiralColor)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _Color1)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _Color2)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _Color3)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _EdgeGlowColor)
-                UNITY_DEFINE_INSTANCED_PROP(float, _BackgroundBrightness)
-                UNITY_DEFINE_INSTANCED_PROP(float, _BackgroundGlowSpeed)
-                UNITY_DEFINE_INSTANCED_PROP(float, _BackgroundGlowAmount)
-                UNITY_DEFINE_INSTANCED_PROP(float, _BackgroundOpacity)
-                UNITY_DEFINE_INSTANCED_PROP(float, _RotationSpeed)
-                UNITY_DEFINE_INSTANCED_PROP(float, _SpiralZoom)
-                UNITY_DEFINE_INSTANCED_PROP(float, _SpiralOpacity)
-                UNITY_DEFINE_INSTANCED_PROP(float, _UseTexture)
-                UNITY_DEFINE_INSTANCED_PROP(float, _RippleSpeed)
-                UNITY_DEFINE_INSTANCED_PROP(float, _RippleScale)
-                UNITY_DEFINE_INSTANCED_PROP(float, _RippleIntensity)
-                UNITY_DEFINE_INSTANCED_PROP(float, _NoiseScale)
-                UNITY_DEFINE_INSTANCED_PROP(float, _RippleOpacity)
-                UNITY_DEFINE_INSTANCED_PROP(float, _ColorCycleSpeed)
-                UNITY_DEFINE_INSTANCED_PROP(float, _ColorSaturation)
-                UNITY_DEFINE_INSTANCED_PROP(float, _ColorBrightness)
-                UNITY_DEFINE_INSTANCED_PROP(float, _EdgeGlowWidth)
-                UNITY_DEFINE_INSTANCED_PROP(float, _EdgeGlowIntensity)
-                UNITY_DEFINE_INSTANCED_PROP(float, _EdgeFlickerSpeed)
-                UNITY_DEFINE_INSTANCED_PROP(float, _EdgeFlickerAmount)
-                UNITY_DEFINE_INSTANCED_PROP(float, _PortalShape)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Softness)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Brightness)
-            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+            // Single CBUFFER for all material properties (DOTS-compatible)
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BackgroundTex_ST;
+                float4 _MainTex_ST;
+                float4 _BackgroundColor;
+                float4 _SpiralColor;
+                float4 _Color1;
+                float4 _Color2;
+                float4 _Color3;
+                float4 _EdgeGlowColor;
+                float _BackgroundBrightness;
+                float _BackgroundGlowSpeed;
+                float _BackgroundGlowAmount;
+                float _BackgroundOpacity;
+                float _RotationSpeed;
+                float _SpiralZoom;
+                float _SpiralOpacity;
+                float _UseTexture;
+                float _RippleSpeed;
+                float _RippleScale;
+                float _RippleIntensity;
+                float _NoiseScale;
+                float _RippleOpacity;
+                float _ColorCycleSpeed;
+                float _ColorSaturation;
+                float _ColorBrightness;
+                float _EdgeGlowWidth;
+                float _EdgeGlowIntensity;
+                float _EdgeFlickerSpeed;
+                float _EdgeFlickerAmount;
+                float _PortalShape;
+                float _Softness;
+                float _Brightness;
+            CBUFFER_END
             
             #define PI 3.14159265359
             
@@ -227,40 +229,40 @@ Shader "Custom/UltimatePortalCombined_DOTS"
                 UNITY_SETUP_INSTANCE_ID(input);
                 
                 // Access instanced properties
-                float4 backgroundColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BackgroundColor);
-                float backgroundBrightness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BackgroundBrightness);
-                float backgroundGlowSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BackgroundGlowSpeed);
-                float backgroundGlowAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BackgroundGlowAmount);
-                float backgroundOpacity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BackgroundOpacity);
+                float4 backgroundColor = _BackgroundColor;
+                float backgroundBrightness = _BackgroundBrightness;
+                float backgroundGlowSpeed = _BackgroundGlowSpeed;
+                float backgroundGlowAmount = _BackgroundGlowAmount;
+                float backgroundOpacity = _BackgroundOpacity;
                 
-                float4 spiralColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _SpiralColor);
-                float rotationSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _RotationSpeed);
-                float spiralZoom = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _SpiralZoom);
-                float spiralOpacity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _SpiralOpacity);
-                float useTexture = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _UseTexture);
+                float4 spiralColor = _SpiralColor;
+                float rotationSpeed = _RotationSpeed;
+                float spiralZoom = _SpiralZoom;
+                float spiralOpacity = _SpiralOpacity;
+                float useTexture = _UseTexture;
                 
-                float rippleSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _RippleSpeed);
-                float rippleScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _RippleScale);
-                float rippleIntensity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _RippleIntensity);
-                float noiseScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _NoiseScale);
-                float rippleOpacity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _RippleOpacity);
+                float rippleSpeed = _RippleSpeed;
+                float rippleScale = _RippleScale;
+                float rippleIntensity = _RippleIntensity;
+                float noiseScale = _NoiseScale;
+                float rippleOpacity = _RippleOpacity;
                 
-                float4 color1 = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Color1);
-                float4 color2 = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Color2);
-                float4 color3 = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Color3);
-                float colorCycleSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ColorCycleSpeed);
-                float colorSaturation = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ColorSaturation);
-                float colorBrightness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ColorBrightness);
+                float4 color1 = _Color1;
+                float4 color2 = _Color2;
+                float4 color3 = _Color3;
+                float colorCycleSpeed = _ColorCycleSpeed;
+                float colorSaturation = _ColorSaturation;
+                float colorBrightness = _ColorBrightness;
                 
-                float4 edgeGlowColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EdgeGlowColor);
-                float edgeGlowWidth = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EdgeGlowWidth);
-                float edgeGlowIntensity = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EdgeGlowIntensity);
-                float edgeFlickerSpeed = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EdgeFlickerSpeed);
-                float edgeFlickerAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _EdgeFlickerAmount);
+                float4 edgeGlowColor = _EdgeGlowColor;
+                float edgeGlowWidth = _EdgeGlowWidth;
+                float edgeGlowIntensity = _EdgeGlowIntensity;
+                float edgeFlickerSpeed = _EdgeFlickerSpeed;
+                float edgeFlickerAmount = _EdgeFlickerAmount;
                 
-                float portalShape = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _PortalShape);
-                float softness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Softness);
-                float brightness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Brightness);
+                float portalShape = _PortalShape;
+                float softness = _Softness;
+                float brightness = _Brightness;
                 
                 // === LAYER 1: BACKGROUND IMAGE ===
                 half4 backgroundTex = SAMPLE_TEXTURE2D(_BackgroundTex, sampler_BackgroundTex, input.uv);

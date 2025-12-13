@@ -1,4 +1,4 @@
-Shader "Custom/DarkFantasyStone_DOTS"
+Shader "Custom/DarkFantasyStone_SimpleDOTS"
 {
     Properties
     {
@@ -54,6 +54,7 @@ Shader "Custom/DarkFantasyStone_DOTS"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma target 4.5
             #pragma multi_compile_fog
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
@@ -88,28 +89,29 @@ Shader "Custom/DarkFantasyStone_DOTS"
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
             
-            UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseMap_ST)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _NormalMap_ST)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _DirtColor)
-                UNITY_DEFINE_INSTANCED_PROP(float4, _MossColor)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Smoothness)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Metallic)
-                UNITY_DEFINE_INSTANCED_PROP(float, _NormalStrength)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Darkness)
-                UNITY_DEFINE_INSTANCED_PROP(float, _Desaturation)
-                UNITY_DEFINE_INSTANCED_PROP(float, _ContrastBoost)
-                UNITY_DEFINE_INSTANCED_PROP(float, _DirtAmount)
-                UNITY_DEFINE_INSTANCED_PROP(float, _DirtContrast)
-                UNITY_DEFINE_INSTANCED_PROP(float, _WeatheringScale)
-                UNITY_DEFINE_INSTANCED_PROP(float, _CrackDepth)
-                UNITY_DEFINE_INSTANCED_PROP(float, _CrackScale)
-                UNITY_DEFINE_INSTANCED_PROP(float, _MossAmount)
-                UNITY_DEFINE_INSTANCED_PROP(float, _MossScale)
-                UNITY_DEFINE_INSTANCED_PROP(float, _AOStrength)
-                UNITY_DEFINE_INSTANCED_PROP(float, _AOScale)
-            UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
+            // Single CBUFFER for all material properties (DOTS-compatible)
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseMap_ST;
+                float4 _NormalMap_ST;
+                float4 _BaseColor;
+                float4 _DirtColor;
+                float4 _MossColor;
+                float _Smoothness;
+                float _Metallic;
+                float _NormalStrength;
+                float _Darkness;
+                float _Desaturation;
+                float _ContrastBoost;
+                float _DirtAmount;
+                float _DirtContrast;
+                float _WeatheringScale;
+                float _CrackDepth;
+                float _CrackScale;
+                float _MossAmount;
+                float _MossScale;
+                float _AOStrength;
+                float _AOScale;
+            CBUFFER_END
             
             // Simple hash function for procedural noise
             float hash(float2 p)
@@ -199,8 +201,7 @@ Shader "Custom/DarkFantasyStone_DOTS"
                 output.tangentWS = normalInput.tangentWS;
                 output.bitangentWS = normalInput.bitangentWS;
                 
-                float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseMap_ST);
-                output.uv = input.uv * baseST.xy + baseST.zw;
+                output.uv = input.uv * _BaseMap_ST.xy + _BaseMap_ST.zw;
                 
                 output.fogCoord = ComputeFogFactor(vertexInput.positionCS.z);
                 
@@ -213,11 +214,11 @@ Shader "Custom/DarkFantasyStone_DOTS"
                 
                 // Sample base texture
                 half4 baseMap = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, input.uv);
-                float4 baseColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
+                float4 baseColor = _BaseColor;
                 half3 baseColorRGB = baseMap.rgb * baseColor.rgb;
                 
                 // Sample and apply normal map
-                float normalStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _NormalStrength);
+                float normalStrength = _NormalStrength;
                 half4 normalMap = SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, input.uv);
                 half3 tangentNormal = UnpackNormalScale(normalMap, normalStrength);
                 
@@ -229,20 +230,20 @@ Shader "Custom/DarkFantasyStone_DOTS"
                 );
                 
                 // Get instanced properties
-                float weatheringScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _WeatheringScale);
-                float dirtAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DirtAmount);
-                float dirtContrast = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DirtContrast);
-                float4 dirtColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _DirtColor);
-                float crackScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CrackScale);
-                float crackDepth = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CrackDepth);
-                float mossScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MossScale);
-                float mossAmount = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MossAmount);
-                float4 mossColor = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _MossColor);
-                float aoScale = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _AOScale);
-                float aoStrength = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _AOStrength);
-                float desaturation = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Desaturation);
-                float darkness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Darkness);
-                float contrastBoost = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _ContrastBoost);
+                float weatheringScale = _WeatheringScale;
+                float dirtAmount = _DirtAmount;
+                float dirtContrast = _DirtContrast;
+                float4 dirtColor = _DirtColor;
+                float crackScale = _CrackScale;
+                float crackDepth = _CrackDepth;
+                float mossScale = _MossScale;
+                float mossAmount = _MossAmount;
+                float4 mossColor = _MossColor;
+                float aoScale = _AOScale;
+                float aoStrength = _AOStrength;
+                float desaturation = _Desaturation;
+                float darkness = _Darkness;
+                float contrastBoost = _ContrastBoost;
                 
                 // === PROCEDURAL DIRT AND GRIME ===
                 float dirtNoise = fbm(input.uv, weatheringScale);
@@ -307,6 +308,7 @@ Shader "Custom/DarkFantasyStone_DOTS"
             HLSLPROGRAM
             #pragma vertex ShadowPassVertex
             #pragma fragment ShadowPassFragment
+            #pragma target 4.5
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
             #pragma multi_compile _ DOTS_INSTANCING_ON
@@ -357,6 +359,7 @@ Shader "Custom/DarkFantasyStone_DOTS"
             HLSLPROGRAM
             #pragma vertex DepthOnlyVertex
             #pragma fragment DepthOnlyFragment
+            #pragma target 4.5
             #pragma multi_compile_instancing
             #pragma instancing_options renderinglayer
             #pragma multi_compile _ DOTS_INSTANCING_ON
