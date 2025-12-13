@@ -110,5 +110,5 @@ public struct  NpcAttackCoolDown : ICommandData{
 public struct GameOverOnDestroyTag : IComponentData { }
 
 public struct AutoAttackTarget : IComponentData {
-  public Entity Target;
+  public int Value;
 }

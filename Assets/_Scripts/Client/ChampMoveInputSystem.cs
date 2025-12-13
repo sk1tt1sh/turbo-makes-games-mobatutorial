@@ -79,7 +79,6 @@ public partial class ChampMoveInputSystem : SystemBase {
         if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f
           && mobaTeam.ValueRO.Value != champTeam.Value
           ) {
-          //Debug.Log("Found a nearby entity where move select hit");
           champTargetEntity = entity;
         }
       }

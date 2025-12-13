@@ -52,12 +52,10 @@ partial struct ChampAutoAttackSystem : ISystem {
       .WithEntityAccess()) {
 
       if(target.ValueRO.TargetId == 0) {
-        Debug.Log($"[{worldName}] Checkpoint 0: No target network id");
         continue;
       }
 
       if(!networkIdToEntityMap.TryGetValue(target.ValueRO.TargetId, out Entity champTargetEnt)) {
-        Debug.Log($"[{worldName}] Failed to get entity for networkId {target.ValueRO.TargetId} associated with champtargetentity");
         continue;
       }
 
@@ -73,24 +71,19 @@ partial struct ChampAutoAttackSystem : ISystem {
 
       var targetPosition = SystemAPI.GetComponentRO<LocalTransform>(champTargetEnt);
       if(math.distance(targetPosition.ValueRO.Position, xForm.ValueRO.Position) > autoProps.ValueRO.Range) {
-        //Debug.Log($"[{worldName}] Checkpoint 1: Target distance failed");
         continue;
       }
 
       bool offCoolDown = !cdExpiringTick.Value.IsValid || currentTick.IsNewerThan(cdExpiringTick.Value);
       if(!offCoolDown) {
-        //Debug.Log($"[{worldName}] Checkpoint 2: On cooldown");
         continue;
       }
 
       if(!SystemAPI.HasComponent<LocalTransform>(champTargetEnt)) {
-        //Debug.Log($"[{worldName}] Checkpoint 3: No local transform for target");
         continue;
       }
 
       Entity autoAttackEntity = ecb.Instantiate(autoProps.ValueRO.AttackPrefab);
-      //Debug.Log($"[{worldName}][Tick:{currentTick}] " +
-        //$"SPAWNING AutoAttack Entity (will be assigned ID) for Champ:{entity.Index} -> Target:{champTargetEnt.Index}");
 
       float3 directionToTarget = math.normalize(targetPosition.ValueRO.Position - xForm.ValueRO.Position);
       float3 spawnPos = xForm.ValueRO.Position + directionToTarget * autoProps.ValueRO.FirePointOffset;
@@ -98,14 +91,12 @@ partial struct ChampAutoAttackSystem : ISystem {
         quaternion.LookRotationSafe(directionToTarget, math.up()));
 
       float spawnDistance = math.distance(spawnPos, xForm.ValueRO.Position);
-      //Debug.Log($"[{worldName}][Tick:{currentTick}] Spawn distance from champion: {spawnDistance:F2} FirePointOffset: {autoProps.ValueRO.FirePointOffset}");
 
       //Transfer the target entity to the autoattack
-      ecb.AddComponent(autoAttackEntity, new AutoAttackTarget { Target = champTargetEnt });
+      ecb.AddComponent(autoAttackEntity, new AutoAttackTarget { Value = target.ValueRO.TargetId });
       ecb.SetComponent(autoAttackEntity, spawnPosition);
       ecb.SetComponent(autoAttackEntity, mobaTeam.ValueRO);
       if(state.WorldUnmanaged.IsServer()) {
-        //Debug.Log($"[{worldName}] Checkpoint 4: Server skipping CD check.");
         continue;
       }
 

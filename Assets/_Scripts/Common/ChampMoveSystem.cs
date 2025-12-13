@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
@@ -9,20 +10,31 @@ using UnityEngine;
 public partial struct ChampMoveSystem : ISystem {
 
   public void OnCreate(ref SystemState state) {
+    state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
     state.RequireForUpdate<GamePlayingTag>();
   }
 
   public void OnUpdate(ref SystemState state) {
     float deltaTime = SystemAPI.Time.DeltaTime;
-    const float MOVEMENT_THRESHOLD = 0.1f; // Deadzone to prevent micro-jitter
+    const float MOVEMENT_THRESHOLD = 0.5f; // Deadzone to prevent micro-jitter
+    
+    var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+    var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-    foreach(var (transform, movePosition, autoProps, moveSpeed, entity) in
+    ComponentLookup<GhostInstance> ghostIdLookup = SystemAPI.GetComponentLookup<GhostInstance>(true);
+    NativeHashMap<int, Entity> ghostIdToEntityMap = new NativeHashMap<int, Entity>(500, Allocator.Temp);
+
+    foreach(var (ghostId, entity) in SystemAPI.Query<RefRO<GhostInstance>>().WithEntityAccess()) {
+      ghostIdToEntityMap.TryAdd(ghostId.ValueRO.ghostId, entity);
+    }
+
+    foreach(var (transform, movePosition, autoProps, moveSpeed, targetGhostId, entity) in
         SystemAPI.Query<
           RefRW<LocalTransform>,
           RefRO<ChampMoveTargetPosition>,
           RefRO<ChampAutoAttackProperties>,
-          RefRO<CharacterMoveSpeed>
-          >()
+          RefRO<CharacterMoveSpeed>,
+          RefRO<ChampTargetGhost>>()
         .WithNone<ChampDashingTag>()
         .WithAll<Simulate>()
         .WithEntityAccess()) {
@@ -30,18 +42,18 @@ public partial struct ChampMoveSystem : ISystem {
       float3 moveTarget;
 
       //Check if the champ has an autoattack target and override the move position
-      if(SystemAPI.HasComponent<ChampTargetGhost>(entity)) {
+      if(targetGhostId.ValueRO.TargetId != 0) {
         var target = SystemAPI.GetComponentRW<ChampTargetGhost>(entity);
-        var hasLocalTransform = false;//SystemAPI.HasComponent<LocalTransform>(target.ValueRO.Target);
+        Debug.Log("Checkpoint 1 - Champ has target ghost");
 
-        if(hasLocalTransform) {
-          var targetPos = SystemAPI.GetComponent<LocalTransform>(Entity.Null);
+        if(ghostIdToEntityMap.TryGetValue(targetGhostId.ValueRO.TargetId, out Entity targetEntity) 
+          && SystemAPI.HasComponent<LocalTransform>(targetEntity)) 
+        {
+          LocalTransform targetPos = SystemAPI.GetComponent<LocalTransform>(targetEntity);
           moveTarget = targetPos.Position;
           moveTarget.y = transform.ValueRO.Position.y;
 
-          //TODO: Add a component to champ for their auto attack range
           if(math.distance(transform.ValueRO.Position, moveTarget) <= autoProps.ValueRO.Range) {
-            //Debug.Log($"Within auto-range not moving - {math.distance(transform.ValueRO.Position, moveTarget)}");
             continue;
           }
         }
@@ -66,9 +78,10 @@ public partial struct ChampMoveSystem : ISystem {
       
       // Additional safety: don't move if direction is invalid or too small
       if(math.lengthsq(moveDirection) < 0.001f) {
+        Debug.LogWarning("Hit additional move safety");
         continue;
       }
-      
+
       var moveVector = moveDirection * moveSpeed.ValueRO.Value * deltaTime;
       transform.ValueRW.Position += moveVector;
       transform.ValueRW.Rotation = quaternion.LookRotationSafe(moveDirection, math.up());

@@ -24,7 +24,14 @@ public partial struct AutoAttackMoveSystem : ISystem {
     var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
     var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-    foreach(var (ability, targetEntity, transform, entity) in
+    ComponentLookup<GhostInstance> ghostIdLookup = SystemAPI.GetComponentLookup<GhostInstance>(true);
+    NativeHashMap<int, Entity> ghostIdToEntityMap = new NativeHashMap<int, Entity>(500, Allocator.Temp);
+
+    foreach(var (ghostId, entity) in SystemAPI.Query<RefRO<GhostInstance>>().WithEntityAccess()) {
+      ghostIdToEntityMap.TryAdd(ghostId.ValueRO.ghostId, entity);
+    }
+
+    foreach(var (ability, targetGhostId, transform, entity) in
         SystemAPI.Query<
           RefRO<AutoAttackMoveSpeed>,
           RefRO<AutoAttackTarget>,
@@ -32,25 +39,18 @@ public partial struct AutoAttackMoveSystem : ISystem {
         .WithAll<Simulate>()
         .WithEntityAccess()) {
 
-      if(!state.EntityManager.Exists(targetEntity.ValueRO.Target)) {
-        Debug.LogError($"[{worldName}][Tick:{currentTick}] " +
-          $"DESTROYING AutoAttack Entity:{entity.Index} - Target entity {targetEntity.ValueRO.Target.Index} does NOT exist!");
+
+      if(!ghostIdToEntityMap.TryGetValue(targetGhostId.ValueRO.Value, out Entity targetEntity)) {
         ecb.AddComponent<DestroyEntityTag>(entity);
-
-        if(targetEntity.ValueRO.Target.Index == 0) {
-          Debug.LogError($"  -> Target has Index 0 (never set properly)");
-        }
-
-        continue;
       }
+      //if(!state.EntityManager.Exists(targetEntity.ValueRO.Target)) {
+      //  ecb.AddComponent<DestroyEntityTag>(entity);
+      //  continue;
+      //}
 
-      if(SystemAPI.HasComponent<LocalTransform>(targetEntity.ValueRO.Target)) {
-        var targetPos = SystemAPI.GetComponent<LocalTransform>(targetEntity.ValueRO.Target);
+      if(SystemAPI.HasComponent<LocalTransform>(targetEntity)) {
+        var targetPos = SystemAPI.GetComponent<LocalTransform>(targetEntity);
         float distanceToTarget = math.distance(transform.ValueRO.Position, targetPos.Position);
-
-        if(currentTick.TickIndexForValidTick % 10 == 0) {
-          Debug.Log($"[{worldName}][Tick:{currentTick}] AutoAttack Entity:{entity.Index} Distance to target: {distanceToTarget:F2}");
-        }
 
         float3 moveTarget = targetPos.Position;
         moveTarget.y = transform.ValueRO.Position.y;
@@ -61,10 +61,8 @@ public partial struct AutoAttackMoveSystem : ISystem {
         transform.ValueRW.Position += moveVector;
       }
       else {
-        Debug.LogWarning($"[{worldName}][Tick:{currentTick}] Target entity {targetEntity.ValueRO.Target.Index} exists but has no LocalTransform!");
+        Debug.LogWarning($"[{worldName}][Tick:{currentTick}] Target entity {targetEntity.Index} exists but has no LocalTransform!");
       }
-      //ecb.Playback(state.EntityManager);
-      //ecb.Dispose();
     }
   }
 }
