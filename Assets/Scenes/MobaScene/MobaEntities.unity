@@ -2814,7 +2814,7 @@ GameObject:
   - component: {fileID: 1014198955}
   - component: {fileID: 1014198954}
   - component: {fileID: 1014198953}
-  - component: {fileID: 1014198952}
+  - component: {fileID: 1014198956}
   m_Layer: 0
   m_Name: Terrain_Physics
   m_TagString: Untagged
@@ -2822,19 +2822,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
   m_IsActive: 1
---- !u!114 &1014198952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1014198951}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a5e0508e41f459882da7bff513e3dc8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: TerrainBaking.Authoring::TerrainBaking.Authoring.TerrainAuthoring
-  physicsTemplate: {fileID: 11400000, guid: 5a48267efa38c6742a325638ec8a7372, type: 2}
 --- !u!154 &1014198953
 TerrainCollider:
   m_ObjectHideFlags: 0
@@ -2910,6 +2897,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1014198956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1014198951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a5e0508e41f459882da7bff513e3dc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: TerrainBaking.Authoring::TerrainBaking.Authoring.TerrainAuthoring
+  physicsTemplate: {fileID: 11400000, guid: 5a48267efa38c6742a325638ec8a7372, type: 2}
 --- !u!1001 &1062594712
 PrefabInstance:
   m_ObjectHideFlags: 0
