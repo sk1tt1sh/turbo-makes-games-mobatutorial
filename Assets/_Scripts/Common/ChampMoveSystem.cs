@@ -62,17 +62,18 @@ public partial class ChampMoveSystem : SystemBase {
       Vector3 rayStart = new Vector3(newPos.x, newPos.y + RAY_START_HEIGHT, newPos.z);
 
       if(Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, RAY_DISTANCE, groundMask, QueryTriggerInteraction.Ignore)) {
-        newPos.y = hit.point.y + GROUND_SNAP_OFFSET;
+        //newPos.y = hit.point.y + GROUND_SNAP_OFFSET;
         Debug.DrawRay(rayStart, Vector3.down, Color.red, 0.5f);
       }
       else {
         // If we didn't find ground, do NOT force falling while idle; keep current Y.
         // (If you want gravity, do it in a dedicated gravity/physics system.)
         Debug.DrawRay(rayStart, Vector3.down, Color.green, 0.5f);
-        newPos.y = currentPos.y;
+        //newPos.y = currentPos.y;
       }
 
-      transform.ValueRW.Position = newPos;
+      transform.ValueRW.Position.x = newPos.x;
+      transform.ValueRW.Position.z = newPos.z;
     }
   }
 }
