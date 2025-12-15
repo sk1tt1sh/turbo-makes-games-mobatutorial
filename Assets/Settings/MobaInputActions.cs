@@ -120,18 +120,18 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ConfirmSkillShotAbility"",
+                    ""name"": ""ChargeAttack"",
                     ""type"": ""Button"",
-                    ""id"": ""9235f2aa-029b-46a9-b190-d0af96b298c5"",
+                    ""id"": ""02555e33-5341-43c4-b730-edb39ad797cf"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""ChargeAttack"",
+                    ""name"": ""ConfirmAbility"",
                     ""type"": ""Button"",
-                    ""id"": ""02555e33-5341-43c4-b730-edb39ad797cf"",
+                    ""id"": ""9235f2aa-029b-46a9-b190-d0af96b298c5"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -153,7 +153,7 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""f6e5d6b2-6329-4b54-aefd-3b441ce0747a"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""path"": ""<Keyboard>/1"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -164,7 +164,7 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""f86d8f72-9204-438f-b3c6-ae3198473eec"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/2"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -179,14 +179,14 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""ConfirmSkillShotAbility"",
+                    ""action"": ""ConfirmAbility"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
                     ""id"": ""0954c4d6-eba2-429d-b2fe-edb8cd56aaaf"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/3"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -204,8 +204,8 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
         m_GameplayMap_SelectMovePosition = m_GameplayMap.FindAction("SelectMovePosition", throwIfNotFound: true);
         m_GameplayMap_AoeAblility = m_GameplayMap.FindAction("AoeAblility", throwIfNotFound: true);
         m_GameplayMap_SkillShotAbility = m_GameplayMap.FindAction("SkillShotAbility", throwIfNotFound: true);
-        m_GameplayMap_ConfirmSkillShotAbility = m_GameplayMap.FindAction("ConfirmSkillShotAbility", throwIfNotFound: true);
         m_GameplayMap_ChargeAttack = m_GameplayMap.FindAction("ChargeAttack", throwIfNotFound: true);
+        m_GameplayMap_ConfirmAbility = m_GameplayMap.FindAction("ConfirmAbility", throwIfNotFound: true);
     }
 
     ~@MobaInputActions()
@@ -289,8 +289,8 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
     private readonly InputAction m_GameplayMap_SelectMovePosition;
     private readonly InputAction m_GameplayMap_AoeAblility;
     private readonly InputAction m_GameplayMap_SkillShotAbility;
-    private readonly InputAction m_GameplayMap_ConfirmSkillShotAbility;
     private readonly InputAction m_GameplayMap_ChargeAttack;
+    private readonly InputAction m_GameplayMap_ConfirmAbility;
     /// <summary>
     /// Provides access to input actions defined in input action map "GameplayMap".
     /// </summary>
@@ -315,13 +315,13 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @SkillShotAbility => m_Wrapper.m_GameplayMap_SkillShotAbility;
         /// <summary>
-        /// Provides access to the underlying input action "GameplayMap/ConfirmSkillShotAbility".
-        /// </summary>
-        public InputAction @ConfirmSkillShotAbility => m_Wrapper.m_GameplayMap_ConfirmSkillShotAbility;
-        /// <summary>
         /// Provides access to the underlying input action "GameplayMap/ChargeAttack".
         /// </summary>
         public InputAction @ChargeAttack => m_Wrapper.m_GameplayMap_ChargeAttack;
+        /// <summary>
+        /// Provides access to the underlying input action "GameplayMap/ConfirmAbility".
+        /// </summary>
+        public InputAction @ConfirmAbility => m_Wrapper.m_GameplayMap_ConfirmAbility;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -357,12 +357,12 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
             @SkillShotAbility.started += instance.OnSkillShotAbility;
             @SkillShotAbility.performed += instance.OnSkillShotAbility;
             @SkillShotAbility.canceled += instance.OnSkillShotAbility;
-            @ConfirmSkillShotAbility.started += instance.OnConfirmSkillShotAbility;
-            @ConfirmSkillShotAbility.performed += instance.OnConfirmSkillShotAbility;
-            @ConfirmSkillShotAbility.canceled += instance.OnConfirmSkillShotAbility;
             @ChargeAttack.started += instance.OnChargeAttack;
             @ChargeAttack.performed += instance.OnChargeAttack;
             @ChargeAttack.canceled += instance.OnChargeAttack;
+            @ConfirmAbility.started += instance.OnConfirmAbility;
+            @ConfirmAbility.performed += instance.OnConfirmAbility;
+            @ConfirmAbility.canceled += instance.OnConfirmAbility;
         }
 
         /// <summary>
@@ -383,12 +383,12 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
             @SkillShotAbility.started -= instance.OnSkillShotAbility;
             @SkillShotAbility.performed -= instance.OnSkillShotAbility;
             @SkillShotAbility.canceled -= instance.OnSkillShotAbility;
-            @ConfirmSkillShotAbility.started -= instance.OnConfirmSkillShotAbility;
-            @ConfirmSkillShotAbility.performed -= instance.OnConfirmSkillShotAbility;
-            @ConfirmSkillShotAbility.canceled -= instance.OnConfirmSkillShotAbility;
             @ChargeAttack.started -= instance.OnChargeAttack;
             @ChargeAttack.performed -= instance.OnChargeAttack;
             @ChargeAttack.canceled -= instance.OnChargeAttack;
+            @ConfirmAbility.started -= instance.OnConfirmAbility;
+            @ConfirmAbility.performed -= instance.OnConfirmAbility;
+            @ConfirmAbility.canceled -= instance.OnConfirmAbility;
         }
 
         /// <summary>
@@ -451,18 +451,18 @@ public partial class @MobaInputActions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSkillShotAbility(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "ConfirmSkillShotAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnConfirmSkillShotAbility(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "ChargeAttack" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnChargeAttack(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ConfirmAbility" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnConfirmAbility(InputAction.CallbackContext context);
     }
 }

@@ -34,18 +34,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ConfirmSkillShotAbility",
+                    "name": "ChargeAttack",
                     "type": "Button",
-                    "id": "9235f2aa-029b-46a9-b190-d0af96b298c5",
+                    "id": "02555e33-5341-43c4-b730-edb39ad797cf",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ChargeAttack",
+                    "name": "ConfirmAbility",
                     "type": "Button",
-                    "id": "02555e33-5341-43c4-b730-edb39ad797cf",
+                    "id": "9235f2aa-029b-46a9-b190-d0af96b298c5",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -67,7 +67,7 @@
                 {
                     "name": "",
                     "id": "f6e5d6b2-6329-4b54-aefd-3b441ce0747a",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/1",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -78,7 +78,7 @@
                 {
                     "name": "",
                     "id": "f86d8f72-9204-438f-b3c6-ae3198473eec",
-                    "path": "<Keyboard>/w",
+                    "path": "<Keyboard>/2",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -93,14 +93,14 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ConfirmSkillShotAbility",
+                    "action": "ConfirmAbility",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
                     "id": "0954c4d6-eba2-429d-b2fe-edb8cd56aaaf",
-                    "path": "<Keyboard>/e",
+                    "path": "<Keyboard>/3",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

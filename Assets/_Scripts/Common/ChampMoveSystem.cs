@@ -14,7 +14,7 @@ public partial class ChampMoveSystem : SystemBase {
   protected override void OnUpdate() {
     float deltaTime = SystemAPI.Time.DeltaTime;
 
-    const float MOVEMENT_THRESHOLD = 0.1f;
+    const float MOVEMENT_THRESHOLD = 0.5f;
     const float GROUND_SNAP_OFFSET = 0.5f;   // how high above hit.point the character should stand
     const float RAY_START_HEIGHT = 25f;    // start well above terrain
     const float RAY_DISTANCE = 200f;   // long enough for tall terrain / bad Y states
@@ -42,9 +42,8 @@ public partial class ChampMoveSystem : SystemBase {
       float3 newPos = currentPos;
       float3 directionXZ = float3.zero;
 
-      bool shouldMove = distanceXZ >= MOVEMENT_THRESHOLD;
 
-      if(shouldMove) {
+      if(distanceXZ >= MOVEMENT_THRESHOLD) {
         directionXZ = math.normalize(new float3(targetPos.x - currentPos.x, 0f, targetPos.z - currentPos.z));
 
         // guard against NaNs
@@ -72,8 +71,7 @@ public partial class ChampMoveSystem : SystemBase {
         //newPos.y = currentPos.y;
       }
 
-      transform.ValueRW.Position.x = newPos.x;
-      transform.ValueRW.Position.z = newPos.z;
+      transform.ValueRW.Position = newPos;
     }
   }
 }

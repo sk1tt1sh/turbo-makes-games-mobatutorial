@@ -49,7 +49,7 @@ public partial class AbilityInputSystem : SystemBase {
       newAbilityInput.ChargeAttack.Set();
     }
 
-    if(_inputActions.GameplayMap.ConfirmSkillShotAbility.WasPressedThisFrame()) {
+    if(_inputActions.GameplayMap.ConfirmAbility.WasPressedThisFrame()) {
       newAbilityInput.ConfirmChargeAttack.Set();
       newAbilityInput.ConfirmSkillShotAbility.Set();
     }
