@@ -37,9 +37,15 @@ public partial class ChampMoveInputSystem : SystemBase {
   }
 
   private void OnAutoAttackTargetSelect(InputAction.CallbackContext obj) {
+    if(!SystemAPI.TryGetSingletonEntity<OwnerChampTag>(out Entity champEntity))
+      return;
+
+    var currentTransform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(champEntity);
+
     CollisionWorld collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
-    RaycastInput selectionInput = GetRayCastInput(ref collisionWorld);
+    RaycastInput selectionInput = GetRayCastInput(ref collisionWorld, currentTransform);
     Debug.Log("OnAutoAttackTargetSelect");
+    
     if(collisionWorld.CastRay(selectionInput, out var closestHit)) {
       Debug.Log("Rightclick raycast hit!");
       SetAutoAttackTargetEntity(closestHit);
@@ -138,24 +144,35 @@ public partial class ChampMoveInputSystem : SystemBase {
     }
   }
 
-  private RaycastInput GetRayCastInput(ref CollisionWorld collisionWorld) {
+  private RaycastInput GetRayCastInput(ref CollisionWorld collisionWorld, LocalTransform champPosition) {
     //This get call looks for an Entity where EntityManager.AddComponent<T>(entity) call has been made
     //In this case that call occurs in MainCameraAuthoring Baker.
     Entity cameraEntity = SystemAPI.GetSingletonEntity<MainCameraTag>();
     Camera mainCamera = EntityManager.GetComponentObject<MainCamera>(cameraEntity).Value;
 
-    float3 mousePosition = Input.mousePosition;
-    //mousePosition.z = 100f;
-    Vector3 worldPosition = mainCamera.ScreenToWorldPoint(mousePosition);
+    //TODO: Add a component for controlling range (e.g. for spells and skillshots)
+    var cameraDistFromChamp = math.distance(champPosition.Position, mainCamera.transform.position);
+    float rayDist = 20f+cameraDistFromChamp;
 
-    Debug.DrawRay(mainCamera.transform.position, worldPosition, Color.yellow, 2f);
+
+    UnityEngine.Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+    Vector3 rayEnd = ray.origin + ray.direction * rayDist;
+    Debug.DrawRay(ray.origin, ray.direction * rayDist, Color.yellow, 2f);
 
     RaycastInput selectionInput = new RaycastInput {
-      Start = mainCamera.transform.position,
-      End = worldPosition,
+      Start = ray.origin,
+      End = rayEnd,
       Filter = _selectionFilter
     };
 
     return selectionInput;
   }
 }
+
+/*
+  Mouse Position: float3(938f, 11f, 0f) - worldPosition: (50.00, 6.96, 43.42) - rayStart: (938.00, 11.00, 0.00)
+  Mouse Position: float3(282f, 227f, 0f) - worldPosition: (50.00, 6.96, 43.42) - rayStart: (282.00, 227.00, 0.00)
+  Mouse Position: float3(1213f, 373f, 0f) - worldPosition: (50.00, 6.96, 43.42) - rayStart: (1213.00, 373.00, 0.00)
+  Mouse Position: float3(1029f, 101f, 0f) - worldPosition: (51.46, 10.63, 46.82) - rayStart: (1029.00, 101.00, 0.00)
+  Mouse Position: float3(1141f, 221f, 0f) - worldPosition: (51.46, 10.63, 46.82) - rayStart: (1141.00, 221.00, 0.00)
+*/
