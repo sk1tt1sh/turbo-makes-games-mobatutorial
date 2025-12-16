@@ -9,7 +9,7 @@ using UnityEngine;
 using TerrainCollider = UnityEngine.TerrainCollider;
 
 
-public class DOTSTerrainCollider : MonoBehaviour {
+public class TerrainColliderAuthoring : MonoBehaviour {
   public TerrainCollider terrainCollider;
   public PhysicsCategoryTags belongsTo;
   public PhysicsCategoryTags collideWith;
@@ -19,8 +19,8 @@ public class DOTSTerrainCollider : MonoBehaviour {
       Debug.LogWarning("Terrain Collider is null! pleas add it to the inspector!");
   }
 
-  class TerrainBaker : Baker<DOTSTerrainCollider> {
-    public override void Bake(DOTSTerrainCollider authoring) {
+  class TerrainBaker : Baker<TerrainColliderAuthoring> {
+    public override void Bake(TerrainColliderAuthoring authoring) {
 
       DependsOn(authoring.terrainCollider);
       var data = authoring.terrainCollider.terrainData;
