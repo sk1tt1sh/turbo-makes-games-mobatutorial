@@ -14,10 +14,10 @@ public partial class ChampMoveSystem : SystemBase {
   protected override void OnUpdate() {
     float deltaTime = SystemAPI.Time.DeltaTime;
 
-    const float MOVEMENT_THRESHOLD = 0.5f;
-    const float GROUND_SNAP_OFFSET = 0.5f;   // how high above hit.point the character should stand
-    const float RAY_START_HEIGHT = 25f;    // start well above terrain
-    const float RAY_DISTANCE = 200f;   // long enough for tall terrain / bad Y states
+    const float MOVEMENT_THRESHOLD = 0.25f;
+    //const float GROUND_SNAP_OFFSET = 0.5f;   // how high above hit.point the character should stand
+    //const float RAY_START_HEIGHT = 25f;    // start well above terrain
+    //const float RAY_DISTANCE = 200f;   // long enough for tall terrain / bad Y states
 
     // Optional: restrict to a ground layer if you have it set up
     // int groundMask = LayerMask.GetMask("Default", "Terrain", "Ground");
@@ -54,21 +54,6 @@ public partial class ChampMoveSystem : SystemBase {
           // Rotate to face movement direction
           transform.ValueRW.Rotation = quaternion.LookRotationSafe(directionXZ, math.up());
         }
-      }
-
-      // --- ALWAYS ground-snap (even when idle) ---
-      // Start ray above the *new* XZ position, not based on current Y (which might already be wrong).
-      Vector3 rayStart = new Vector3(newPos.x, newPos.y + RAY_START_HEIGHT, newPos.z);
-
-      if(Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, RAY_DISTANCE, groundMask, QueryTriggerInteraction.Ignore)) {
-        //newPos.y = hit.point.y + GROUND_SNAP_OFFSET;
-        Debug.DrawRay(rayStart, Vector3.down, Color.red, 0.5f);
-      }
-      else {
-        // If we didn't find ground, do NOT force falling while idle; keep current Y.
-        // (If you want gravity, do it in a dedicated gravity/physics system.)
-        Debug.DrawRay(rayStart, Vector3.down, Color.green, 0.5f);
-        //newPos.y = currentPos.y;
       }
 
       transform.ValueRW.Position = newPos;

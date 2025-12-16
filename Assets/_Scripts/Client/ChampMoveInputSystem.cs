@@ -6,6 +6,7 @@ using Unity.Physics;
 using Unity.Transforms;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Ray = UnityEngine.Ray;
 
 /// <summary>
 /// WASD camera-relative movement input for DOTS characters.
@@ -22,7 +23,7 @@ public partial class ChampMoveInputSystem : SystemBase {
     _inputActions = new MobaInputActions();
     //This maps to the physics category names
     _selectionFilter = new CollisionFilter {
-      BelongsTo = 1 << 5, //Raycasts group 
+      BelongsTo = 1 << 6, //Targetcast group 
       CollidesWith = 1 << 1 | 1 << 2 | 1 << 4//Champs Minions Structures
     };
   }
@@ -40,7 +41,7 @@ public partial class ChampMoveInputSystem : SystemBase {
     if(!SystemAPI.TryGetSingletonEntity<OwnerChampTag>(out Entity champEntity))
       return;
 
-    var currentTransform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(champEntity);
+    var currentTransform = EntityManager.GetComponentData<LocalTransform>(champEntity);
 
     CollisionWorld collisionWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>().CollisionWorld;
     RaycastInput selectionInput = GetRayCastInput(ref collisionWorld, currentTransform);
@@ -75,7 +76,7 @@ public partial class ChampMoveInputSystem : SystemBase {
 
     // Get current position (needed both for movement and for STOP)
     var currentTransform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(champEntity);
-
+    
     // If no input, STOP by setting target to current position
     if(Mathf.Abs(forward) < 0.1f && Mathf.Abs(strafe) < 0.1f) {
       EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {
@@ -103,45 +104,22 @@ public partial class ChampMoveInputSystem : SystemBase {
     EntityManager.SetComponentData(champEntity, new ChampMoveTargetPosition {
       Value = targetPosition
     });
-
-    // Clear any auto-attack target when moving (optional - comment out if you don't want this)
-    if(SystemAPI.HasComponent<ChampTargetGhost>(champEntity)) {
-      EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = 0 });
-    }
   }
 
   private void SetAutoAttackTargetEntity(Unity.Physics.RaycastHit closestHit) {
     Entity champEntity = SystemAPI.GetSingletonEntity<OwnerChampTag>();
     MobaTeam champTeam = SystemAPI.GetComponent<MobaTeam>(champEntity);
-    Entity champTargetEntity = Entity.Null;
-
-    foreach(var (xform, mobaTeam, entity) in SystemAPI.Query<RefRO<LocalTransform>, RefRO<MobaTeam>>()
-        .WithEntityAccess()) {
-      //TODO: Add component for adjusting hit distance precision on auto attack
-      if(math.distance(xform.ValueRO.Position, closestHit.Position) < 1.25f
-        && mobaTeam.ValueRO.Value != champTeam.Value
-        ) {
-        champTargetEntity = entity;
-      }
-    }
-
-    //Remove the auto attack target
-    //Entities created with new Entity() have a 0 value index
-    //Therefore the check here indicates no target entity was found in the above idiomatic foreach
-    //Additionally, the player clicked away from the existing target and wants to move elsewhere
-    if(champTargetEntity == Entity.Null && SystemAPI.HasComponent<ChampTargetGhost>(champEntity)) {
-      EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = 0 });
-    }
-    else {
-      //Debug.Log($"Setting targetEntity to {champTargetEntity.Index}");
-      if(SystemAPI.HasComponent<GhostInstance>(champTargetEntity)) {
-        var targetGhostId = SystemAPI.GetComponent<GhostInstance>(champTargetEntity);
-        //Debug.Log($"RAYCAST HIT ON GHOST! {targetGhostId.ghostId} on entity {champTargetEntity.Index}");
+   
+    if(SystemAPI.HasComponent<GhostInstance>(closestHit.Entity) &&
+      SystemAPI.HasComponent<MobaTeam>(closestHit.Entity)) {
+      var targetTeam = SystemAPI.GetComponent<MobaTeam>(closestHit.Entity);
+      if(champTeam.Value != targetTeam.Value) {
+        var targetGhostId = SystemAPI.GetComponent<GhostInstance>(closestHit.Entity);
         EntityManager.SetComponentData(champEntity, new ChampTargetGhost { TargetId = targetGhostId.ghostId });
       }
-      else
-        Debug.LogWarning("Got a raycast hit but the entity doesn't have a GhostId");
     }
+    else
+      Debug.LogWarning("Got a raycast hit but the entity doesn't have a GhostId");
   }
 
   private RaycastInput GetRayCastInput(ref CollisionWorld collisionWorld, LocalTransform champPosition) {
@@ -150,12 +128,12 @@ public partial class ChampMoveInputSystem : SystemBase {
     Entity cameraEntity = SystemAPI.GetSingletonEntity<MainCameraTag>();
     Camera mainCamera = EntityManager.GetComponentObject<MainCamera>(cameraEntity).Value;
 
-    //TODO: Add a component for controlling range (e.g. for spells and skillshots)
+    //TODO: Add a component for controlling range
+    //Adjusts the ray length based on camera zoom
     var cameraDistFromChamp = math.distance(champPosition.Position, mainCamera.transform.position);
     float rayDist = 20f+cameraDistFromChamp;
 
-
-    UnityEngine.Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
+    Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
     Vector3 rayEnd = ray.origin + ray.direction * rayDist;
     Debug.DrawRay(ray.origin, ray.direction * rayDist, Color.yellow, 2f);
 
@@ -168,11 +146,3 @@ public partial class ChampMoveInputSystem : SystemBase {
     return selectionInput;
   }
 }
-
-/*
-  Mouse Position: float3(938f, 11f, 0f) - worldPosition: (50.00, 6.96, 43.42) - rayStart: (938.00, 11.00, 0.00)
-  Mouse Position: float3(282f, 227f, 0f) - worldPosition: (50.00, 6.96, 43.42) - rayStart: (282.00, 227.00, 0.00)
-  Mouse Position: float3(1213f, 373f, 0f) - worldPosition: (50.00, 6.96, 43.42) - rayStart: (1213.00, 373.00, 0.00)
-  Mouse Position: float3(1029f, 101f, 0f) - worldPosition: (51.46, 10.63, 46.82) - rayStart: (1029.00, 101.00, 0.00)
-  Mouse Position: float3(1141f, 221f, 0f) - worldPosition: (51.46, 10.63, 46.82) - rayStart: (1141.00, 221.00, 0.00)
-*/
