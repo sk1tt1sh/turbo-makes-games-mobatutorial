@@ -69,6 +69,7 @@ public struct AbilityCooldownTargetTicks : ICommandData {
   public NetworkTick AoeAbility;
   public NetworkTick SkillShotAbility;
   public NetworkTick ChargeAbility;
+  public NetworkTick AutoAttack;
 }
 
 public struct AimSkillShotTag : IComponentData { }

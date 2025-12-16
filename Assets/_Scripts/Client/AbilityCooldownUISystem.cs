@@ -13,13 +13,14 @@ public partial struct AbilityCooldownUISystem : ISystem {
 
     if(abilityCooldownUIController == null) return;
 
-    foreach(var (cooldownTargetTicks, abilityCooldownTicks) in
-        SystemAPI.Query<DynamicBuffer<AbilityCooldownTargetTicks>, AbilityCooldownTicks>()) {
+    foreach(var (cooldownTargetTicks, abilityCooldownTicks, champAutoAttack) in
+        SystemAPI.Query<DynamicBuffer<AbilityCooldownTargetTicks>, AbilityCooldownTicks, ChampAutoAttackProperties>()) {
 
       if(!cooldownTargetTicks.GetDataAtTick(currentTicks, out AbilityCooldownTargetTicks curTarTick)) {
         curTarTick.AoeAbility = NetworkTick.Invalid;
         curTarTick.SkillShotAbility = NetworkTick.Invalid;
         curTarTick.ChargeAbility = NetworkTick.Invalid;
+        curTarTick.AutoAttack = NetworkTick.Invalid;
       }
 
       if(curTarTick.AoeAbility == NetworkTick.Invalid || currentTicks.IsNewerThan(curTarTick.AoeAbility)) {
@@ -47,6 +48,15 @@ public partial struct AbilityCooldownUISystem : ISystem {
         var ssRemTick = curTarTick.ChargeAbility.TickIndexForValidTick - currentTicks.TickIndexForValidTick;
         var fillAmount = (float)ssRemTick / abilityCooldownTicks.ChargeAbility;
         abilityCooldownUIController.UpdateChargeMask(fillAmount);
+      }
+
+      if(curTarTick.AutoAttack == NetworkTick.Invalid || currentTicks.IsNewerThan(curTarTick.AutoAttack)) { 
+        abilityCooldownUIController.UpdateAutoMask(0f);
+      }
+      else {
+        var ssRemTick = curTarTick.AutoAttack.TickIndexForValidTick - currentTicks.TickIndexForValidTick;
+        var fillAmount = (float)ssRemTick / champAutoAttack.CooldownTicks;
+        abilityCooldownUIController.UpdateAutoMask(fillAmount);
       }
     }
   }
