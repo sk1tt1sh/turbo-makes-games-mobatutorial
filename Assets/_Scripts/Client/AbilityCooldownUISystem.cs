@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.NetCode;
-using UnityEngine;
 
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
 public partial struct AbilityCooldownUISystem : ISystem {
@@ -14,7 +13,7 @@ public partial struct AbilityCooldownUISystem : ISystem {
 
     if(abilityCooldownUIController == null) return;
 
-    foreach(var (cooldownTargetTicks, abilityCooldownTicks) in 
+    foreach(var (cooldownTargetTicks, abilityCooldownTicks) in
         SystemAPI.Query<DynamicBuffer<AbilityCooldownTargetTicks>, AbilityCooldownTicks>()) {
 
       if(!cooldownTargetTicks.GetDataAtTick(currentTicks, out AbilityCooldownTargetTicks curTarTick)) {
@@ -31,7 +30,7 @@ public partial struct AbilityCooldownUISystem : ISystem {
         var fillAmt = (float)aoeRemTicks / abilityCooldownTicks.AoeAbility;
         abilityCooldownUIController.UpdateAoeMask(fillAmt);
       }
-      
+
       if(curTarTick.SkillShotAbility == NetworkTick.Invalid || currentTicks.IsNewerThan(curTarTick.SkillShotAbility)) {
         abilityCooldownUIController.UpdateSkillShotMask(0f);
       }

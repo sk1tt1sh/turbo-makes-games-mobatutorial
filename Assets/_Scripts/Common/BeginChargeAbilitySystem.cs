@@ -1,13 +1,10 @@
-using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
-using Unity.Physics;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Analytics;
 
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 partial struct BeginChargeAbilitySystem : ISystem {
@@ -19,7 +16,7 @@ partial struct BeginChargeAbilitySystem : ISystem {
   public void OnUpdate(ref SystemState state) {
     NetworkTime netTime = SystemAPI.GetSingleton<NetworkTime>();
     if(!netTime.IsFirstTimeFullyPredictingTick) return;
-    
+
     EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
     bool isServer = state.WorldUnmanaged.IsServer();
 
@@ -105,7 +102,7 @@ partial struct BeginChargeAbilitySystem : ISystem {
       var newCDTargetTick = currentTick;
       newCDTargetTick.Add(abilityCDTicks.ValueRO.ChargeAbility);
       curTargetTick.ChargeAbility = newCDTargetTick;
-      
+
       var nextTick = currentTick;
       nextTick.Add(2u);
       curTargetTick.Tick = nextTick;

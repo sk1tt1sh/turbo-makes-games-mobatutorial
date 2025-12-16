@@ -7,7 +7,7 @@ using Unity.Transforms;
 public partial struct AbilityMoveSystem : ISystem {
   [BurstCompile]
   public void OnUpdate(ref SystemState state) {
-    foreach(var (ability, transform) in 
+    foreach(var (ability, transform) in
         SystemAPI.Query<AbilityMoveSpeed, RefRW<LocalTransform>>()
         .WithAll<Simulate>()
         .WithNone<AutoAttackTarget>()) {

@@ -1,11 +1,9 @@
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
-public partial struct ClientRequestGameEntrySystem : ISystem
-{
+public partial struct ClientRequestGameEntrySystem : ISystem {
   private EntityQuery pendingNetworkIdQuery;
 
   public void OnCreate(ref SystemState state) {
@@ -25,10 +23,10 @@ public partial struct ClientRequestGameEntrySystem : ISystem
       ecb.AddComponent<NetworkStreamInGame>(pendingNetId);
 
       var reqTeamEntity = ecb.CreateEntity();
-      ecb.AddComponent(reqTeamEntity, new MobaTeamRequest { 
+      ecb.AddComponent(reqTeamEntity, new MobaTeamRequest {
         Value = requestedTeam.Value,
       });
-      ecb.AddComponent(reqTeamEntity, new SendRpcCommandRequest { 
+      ecb.AddComponent(reqTeamEntity, new SendRpcCommandRequest {
         TargetConnection = pendingNetId
       });
     }

@@ -27,16 +27,16 @@ class ChampionAuthoring : MonoBehaviour {
       AddComponent<MobaTeam>(entity);
       AddComponent<URPMaterialPropertyBaseColor>(entity);
       AddComponent<ChampMoveTargetPosition>(entity);
-      AddComponent(entity, new CharacterMoveSpeed { 
+      AddComponent(entity, new CharacterMoveSpeed {
         Value = authoring.MoveSpeed,
         DashSpeed = authoring.DashSpeed,
         DashDistance = authoring.DashDistance
       });
-      AddComponent(entity, new ChampAutoAttackProperties { 
+      AddComponent(entity, new ChampAutoAttackProperties {
         Range = authoring.AutoAttackRange,
-        CooldownTicks = (uint)(authoring.AutoAttackCooldown*authoring.SimTickRate),
+        CooldownTicks = (uint)(authoring.AutoAttackCooldown * authoring.SimTickRate),
         FirePointOffset = authoring.FirePointOffset,
-        AttackPrefab = GetEntity(authoring.AttackPrefab,TransformUsageFlags.Dynamic)
+        AttackPrefab = GetEntity(authoring.AttackPrefab, TransformUsageFlags.Dynamic)
       });
       AddComponent<ChampTargetGhost>(entity);
       AddComponent<AbilityInput>(entity);

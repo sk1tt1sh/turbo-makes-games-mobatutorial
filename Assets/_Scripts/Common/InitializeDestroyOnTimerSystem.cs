@@ -1,9 +1,7 @@
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
-using UnityEngine;
 
 public partial struct InitializeDestroyOnTimerSystem : ISystem {
   public void OnCreate(ref SystemState state) {
@@ -17,7 +15,7 @@ public partial struct InitializeDestroyOnTimerSystem : ISystem {
     var currentTick = SystemAPI.GetSingleton<NetworkTime>().ServerTick;
 
 
-    foreach(var(destroyOnTimer, entity) in 
+    foreach(var (destroyOnTimer, entity) in
         SystemAPI.Query<DestroyOnTimer>().WithNone<DestroyAtTick>()
         .WithEntityAccess()) {
 

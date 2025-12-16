@@ -4,9 +4,6 @@ using Unity.Entities;
 using Unity.NetCode;
 using Unity.Physics;
 using Unity.Physics.Systems;
-using Unity.Transforms;
-using Unity.VisualScripting;
-using UnityEngine;
 
 [UpdateInGroup(typeof(PhysicsSystemGroup))]
 [UpdateAfter(typeof(PhysicsSimulationGroup))]

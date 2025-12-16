@@ -2,9 +2,7 @@
 // Posted by 11belowstudio
 // Retrieved 2025-11-08, License - CC BY-SA 4.0
 
-using System;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 ///<summary>The clientside class </summary>
 public class PlayerCamera : MonoBehaviour {
@@ -82,12 +80,13 @@ public class PlayerCamera : MonoBehaviour {
       currentX += Input.GetAxis("Mouse X") * mouseSensitivity;
       currentY -= Input.GetAxis("Mouse Y") * mouseSensitivity;
       currentY = Mathf.Clamp(currentY, minVerticalAngle, maxVerticalAngle);
-    } else {
+    }
+    else {
       // Only snap camera behind player when moving forward (W key held)
       bool isMovingForward = Input.GetKey(KeyCode.W);
 
       if(isMovingForward) {
-        float playerYaw =_target.eulerAngles.y;
+        float playerYaw = _target.eulerAngles.y;
         float angleDifference = Mathf.DeltaAngle(currentX, playerYaw);
 
         // Only snap if difference is significant
@@ -106,7 +105,7 @@ public class PlayerCamera : MonoBehaviour {
 
     // Calculate ideal camera position
     Quaternion rotation = Quaternion.Euler(currentY, currentX, 0f);
-    Vector3 lookAtPoint =_target.position + Vector3.up * height;
+    Vector3 lookAtPoint = _target.position + Vector3.up * height;
     Vector3 offsetDirection = rotation * Vector3.back;
     Vector3 idealPosition = lookAtPoint + offsetDirection * distance;
 

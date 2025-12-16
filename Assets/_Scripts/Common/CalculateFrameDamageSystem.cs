@@ -1,7 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.NetCode;
-using UnityEngine;
 
 
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup), OrderLast = true)]
@@ -12,7 +11,7 @@ public partial struct CalculateFrameDamageSystem : ISystem {
 
   [BurstCompile]
   public void OnUpdate(ref SystemState state) {
-    var currentTick = SystemAPI.GetSingleton<NetworkTime>().ServerTick;    
+    var currentTick = SystemAPI.GetSingleton<NetworkTime>().ServerTick;
 
     foreach(var (damageBuffer, damageThisTickBuffer) in
         SystemAPI.Query<DynamicBuffer<DamageBufferElement>,

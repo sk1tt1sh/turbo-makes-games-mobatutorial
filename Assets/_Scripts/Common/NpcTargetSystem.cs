@@ -2,10 +2,8 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Physics;
-using Unity.Physics.Authoring;
 using Unity.Physics.Systems;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateInGroup(typeof(PhysicsSystemGroup))] //Runs under predicted sim system group
 [UpdateAfter(typeof(PhysicsSimulationGroup))]

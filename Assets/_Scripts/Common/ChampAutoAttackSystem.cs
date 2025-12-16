@@ -1,4 +1,3 @@
-using System.Linq;
 using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
@@ -6,7 +5,6 @@ using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.UI;
 
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 [UpdateBefore(typeof(ChampMoveSystem))]
@@ -20,7 +18,7 @@ partial struct ChampAutoAttackSystem : ISystem {
   //This might need to be a job...
   [BurstCompile]
   public void OnUpdate(ref SystemState state) {
-    var worldName = state.World.Name;   
+    var worldName = state.World.Name;
 
     EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
     NetworkTime netTime = SystemAPI.GetSingleton<NetworkTime>();

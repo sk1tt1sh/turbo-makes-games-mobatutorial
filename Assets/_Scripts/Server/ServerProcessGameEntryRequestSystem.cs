@@ -4,7 +4,6 @@ using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Transforms;
 using UnityEngine;
-using UnityEngine.Analytics;
 
 [WorldSystemFilter(WorldSystemFilterFlags.ServerSimulation)]
 public partial struct ServerProcessGameEntryRequestSystem : ISystem {
@@ -36,7 +35,7 @@ public partial struct ServerProcessGameEntryRequestSystem : ISystem {
       if(reqTeamType == TeamType.AutoAssign) {
         if(teamPlayerCount.BlueTeamPlayers > teamPlayerCount.RedTeamPlayers)
           reqTeamType = TeamType.Blue;
-        else if (teamPlayerCount.RedTeamPlayers <= teamPlayerCount.BlueTeamPlayers)
+        else if(teamPlayerCount.RedTeamPlayers <= teamPlayerCount.BlueTeamPlayers)
           reqTeamType = TeamType.Red;
       }
 
@@ -79,7 +78,7 @@ public partial struct ServerProcessGameEntryRequestSystem : ISystem {
 
 
       ecb.SetComponent(newChamp, new NetworkEntityReference { Value = reqSrc.SourceConnection });
-      ecb.AddComponent(reqSrc.SourceConnection, new PlayerSpawnInfo { 
+      ecb.AddComponent(reqSrc.SourceConnection, new PlayerSpawnInfo {
         SpawnPosition = spawnPos,
         Team = reqTeamType
       });

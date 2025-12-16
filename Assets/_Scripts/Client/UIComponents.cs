@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 
 //Lets us do init and cleanup logic using ICleanupComponentData
-public class  HealthBarUIReference : ICleanupComponentData {
+public class HealthBarUIReference : ICleanupComponentData {
   public GameObject Value;
 
 }
@@ -14,4 +14,4 @@ public struct HealthBarOffset : IComponentData {
 
 public class SkillShotUIReference : ICleanupComponentData {
   public GameObject Value;
-} 
+}

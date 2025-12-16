@@ -1,9 +1,6 @@
-using Unity.Burst;
-using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 public partial struct BeginAoeSystem : ISystem {
@@ -22,7 +19,7 @@ public partial struct BeginAoeSystem : ISystem {
   public void OnUpdate(ref SystemState state) {
     var netTimeSingleton = SystemAPI.GetSingleton<NetworkTime>();
     var currentTick = netTimeSingleton.ServerTick;
-    
+
     if(!netTimeSingleton.IsFirstTimeFullyPredictingTick) return;
 
     //Built-in Entity Command buffer.
@@ -35,8 +32,8 @@ public partial struct BeginAoeSystem : ISystem {
 
 
 
-    foreach(var (aoeInput, aoeTeam, aoeTransfrom, owner, cooldownTicks,abilityCooldownTargetTick, prefab) in
-      SystemAPI.Query<RefRO<AbilityInput>, RefRO<MobaTeam>, 
+    foreach(var (aoeInput, aoeTeam, aoeTransfrom, owner, cooldownTicks, abilityCooldownTargetTick, prefab) in
+      SystemAPI.Query<RefRO<AbilityInput>, RefRO<MobaTeam>,
         RefRO<LocalTransform>, RefRO<GhostOwner>, RefRO<AbilityCooldownTicks>,
         DynamicBuffer<AbilityCooldownTargetTicks>, RefRO<AbilityPrefabs>>()
         .WithAll<Simulate>()) {

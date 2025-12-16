@@ -1,8 +1,6 @@
-using JetBrains.Annotations;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
-using UnityEngine;
 
 public struct ChampTag : IComponentData { }
 
@@ -23,7 +21,7 @@ public struct CharacterMoveSpeed : IComponentData {
   public float DashDistance;
 }
 
-public struct ChampDashData : IComponentData { 
+public struct ChampDashData : IComponentData {
   public float DistanceRemaining;
 }
 

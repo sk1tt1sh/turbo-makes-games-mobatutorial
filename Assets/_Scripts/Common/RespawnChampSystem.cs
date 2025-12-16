@@ -4,7 +4,6 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
 using Unity.Transforms;
-using UnityEngine;
 
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 public partial class RespawnChampSystem : SystemBase {
@@ -53,7 +52,7 @@ public partial class RespawnChampSystem : SystemBase {
             OnRespawn?.Invoke();
           }
         }
-        else if(!isServer){
+        else if(!isServer) {
           if(SystemAPI.TryGetSingleton<NetworkId>(out var networkId)) {
             if(networkId.Value == curRespawn.NetworkId) {
               var ticksToRespawn = curRespawn.RespawnTick.TickIndexForValidTick - currTick.TickIndexForValidTick;
@@ -64,7 +63,7 @@ public partial class RespawnChampSystem : SystemBase {
           }
         }
       }
-      
+
       foreach(var respawnIndex in respawnsToCleanup) {
         respawnBuffer.RemoveAt(respawnIndex);
       }

@@ -1,8 +1,6 @@
-using System.Linq;
 using Unity.Entities;
 using Unity.NetCode;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 [UpdateInGroup(typeof(GhostInputSystemGroup))]
 [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
@@ -11,11 +9,11 @@ public partial class AbilityInputSystem : SystemBase {
 
   protected override void OnCreate() {
     RequireForUpdate<GamePlayingTag>();
-     _inputActions = new MobaInputActions();
-   }
+    _inputActions = new MobaInputActions();
+  }
 
   protected override void OnDestroy() {
-     base.OnDestroy();
+    base.OnDestroy();
   }
 
   private void AoeAblility_canceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
@@ -39,12 +37,12 @@ public partial class AbilityInputSystem : SystemBase {
     }
 
     #region Aimed & confirmed abilities
-    if(_inputActions.GameplayMap.SkillShotAbility.WasPressedThisFrame() 
+    if(_inputActions.GameplayMap.SkillShotAbility.WasPressedThisFrame()
         /*&& !newAbilityInput.ChargeAttack.IsSet*/) {
       newAbilityInput.SkillShotAbility.Set();
     }
 
-    if(_inputActions.GameplayMap.ChargeAttack.WasPressedThisFrame() 
+    if(_inputActions.GameplayMap.ChargeAttack.WasPressedThisFrame()
         /*&& !newAbilityInput.SkillShotAbility.IsSet*/) {
       newAbilityInput.ChargeAttack.Set();
     }

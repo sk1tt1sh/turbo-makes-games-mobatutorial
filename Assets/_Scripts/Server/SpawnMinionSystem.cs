@@ -1,8 +1,6 @@
 using Unity.Burst;
 using Unity.Entities;
-using Unity.NetCode;
 using Unity.Transforms;
-using UnityEngine;
 
 partial struct SpawnMinionSystem : ISystem {
   [BurstCompile]
@@ -15,7 +13,7 @@ partial struct SpawnMinionSystem : ISystem {
   [BurstCompile]
   public void OnUpdate(ref SystemState state) {
     float deltaTime = SystemAPI.Time.DeltaTime;
-    
+
     foreach(var (timer, props) in
         SystemAPI.Query<RefRW<MinionSpawnTimers>, RefRO<MinionSpawnProperties>>()) {
 
@@ -48,10 +46,10 @@ partial struct SpawnMinionSystem : ISystem {
 
     var topLane = SystemAPI.GetBuffer<MinionPathPosition>(pathContainers.TopLane);
     SpawnOnLane(ecb, prefab, topLane);
-    
+
     var midLane = SystemAPI.GetBuffer<MinionPathPosition>(pathContainers.MidLane);
     SpawnOnLane(ecb, prefab, midLane);
-    
+
     var botLane = SystemAPI.GetBuffer<MinionPathPosition>(pathContainers.BotLane);
     SpawnOnLane(ecb, prefab, botLane);
   }

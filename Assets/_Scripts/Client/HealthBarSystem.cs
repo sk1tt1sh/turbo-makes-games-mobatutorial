@@ -1,6 +1,4 @@
-using Unity.Burst;
 using Unity.Entities;
-using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -19,27 +17,27 @@ public partial struct HealthBarSystem : ISystem {
     var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
     //Spawns the healthbar object for any entities that don't have one yet
-    foreach(var (transform,hpOffset,maxHP,entity) in 
-        SystemAPI.Query<LocalTransform,HealthBarOffset,MaxHitPoints>()
+    foreach(var (transform, hpOffset, maxHP, entity) in
+        SystemAPI.Query<LocalTransform, HealthBarOffset, MaxHitPoints>()
         .WithNone<HealthBarUIReference>()
         .WithEntityAccess()) {
 
       var healthBarPrefab = SystemAPI.ManagedAPI.GetSingleton<UIPrefabs>().HealthBar;
       var spawnPos = transform.Position + hpOffset.Value;
-      
+
       // Check if spawn position is valid before instantiating
       if(float.IsNaN(spawnPos.x) || float.IsNaN(spawnPos.y) || float.IsNaN(spawnPos.z)) {
         Debug.LogError($"Cannot spawn health bar for entity {entity.Index}: Invalid spawn position " +
                        $"(Transform={transform.Position}, Offset={hpOffset.Value})");
         continue;
       }
-      
+
       var newHpBar = Object.Instantiate(healthBarPrefab, spawnPos, Quaternion.identity);
       // We pass these in as max because we know it's effectively spawning the component
       // on an enemy that's full hp. 
       // However if it wasn't on full hp the update system would redraw that next frame.
       SetHealthBar(newHpBar, maxHP.Value, maxHP.Value);
-      ecb.AddComponent(entity, new HealthBarUIReference { Value = newHpBar});
+      ecb.AddComponent(entity, new HealthBarUIReference { Value = newHpBar });
     }
 
     // Moves the position and value of the hp bars
@@ -49,7 +47,7 @@ public partial struct HealthBarSystem : ISystem {
 
       // Calculate the health bar position
       var hpPosition = transform.Position + hpOffset.Value;
-      
+
       // Check if the final position is valid
       if(float.IsNaN(hpPosition.x) || float.IsNaN(hpPosition.y) || float.IsNaN(hpPosition.z)) {
         Debug.LogWarning($"NaN position for entity {entity.Index}: " +
@@ -59,7 +57,7 @@ public partial struct HealthBarSystem : ISystem {
 
       // Safe to set position now
       hpUI.Value.transform.position = hpPosition;
-      
+
       // We should optimize this later to only update when hp changes
       SetHealthBar(hpUI.Value, currentHp.Value, maxHP.Value);
     }
@@ -74,7 +72,7 @@ public partial struct HealthBarSystem : ISystem {
 
   private void SetHealthBar(GameObject hpCanvas, int currHP, int maxHP) {
     var hpSlider = hpCanvas.GetComponentInChildren<Slider>();
-    hpSlider.maxValue = maxHP;  
+    hpSlider.maxValue = maxHP;
     hpSlider.value = currHP;
     hpSlider.minValue = 0;
   }

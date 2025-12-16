@@ -1,10 +1,8 @@
 using System;
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
-using UnityEngine;
 
 [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
 public partial class CountdownToGameStartSystem : SystemBase {
@@ -13,7 +11,7 @@ public partial class CountdownToGameStartSystem : SystemBase {
 
   protected override void OnCreate() {
     RequireForUpdate<NetworkTime>();
-   }
+  }
 
 
   protected override void OnUpdate() {
@@ -29,13 +27,13 @@ public partial class CountdownToGameStartSystem : SystemBase {
         ecb.SetName(gamePlayingEntity, "GamePlayingEntity");
         ecb.AddComponent<GamePlayingTag>(gamePlayingEntity);
         ecb.DestroyEntity(entity);
-         OnCountdownEnd?.Invoke();
+        OnCountdownEnd?.Invoke();
 
       }
       else {
         var ticksToStart = gameStartTick.Value.TickIndexForValidTick - currentTick.TickIndexForValidTick;
         var simTickRate = NetCodeConfig.Global.ClientServerTickRate.SimulationTickRate;
-        var secondsToStart = (int)math.ceil((float)ticksToStart/simTickRate);
+        var secondsToStart = (int)math.ceil((float)ticksToStart / simTickRate);
         OnUpdateCountdownText?.Invoke(secondsToStart);
       }
     }

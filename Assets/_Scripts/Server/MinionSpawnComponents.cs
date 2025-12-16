@@ -1,5 +1,4 @@
 using Unity.Entities;
-using UnityEngine;
 
 public struct MinionSpawnProperties : IComponentData {
   public float TimeBetweenWaves;
@@ -7,7 +6,7 @@ public struct MinionSpawnProperties : IComponentData {
   public int NumMinionsWave;
 }
 
-public struct MinionSpawnTimers : IComponentData { 
+public struct MinionSpawnTimers : IComponentData {
   public float TimeUntilNextWave;
   public float TimeUntilNextMinion;
   public int CountSpawnedInWave;

@@ -15,7 +15,7 @@ public class MinionSpawnPropertiesAuthoring : MonoBehaviour {
         TimeBetweenWaves = authoring.TimeBetweenWaves
       });
 
-      AddComponent(entity, new MinionSpawnTimers { 
+      AddComponent(entity, new MinionSpawnTimers {
         CountSpawnedInWave = 0,
         TimeUntilNextMinion = 0f,
         TimeUntilNextWave = authoring.TimeBetweenWaves

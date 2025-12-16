@@ -2,8 +2,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode;
 
-public struct MaxHitPoints : IComponentData
-{
+public struct MaxHitPoints : IComponentData {
   public int Value;
 }
 
@@ -15,7 +14,7 @@ public struct CurrentHitPoints : IComponentData {
 [GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
 public struct DamageBufferElement : IBufferElementData {
   public int Value;
-  public NetworkTick Tick{ get; set; }
+  public NetworkTick Tick { get; set; }
   public int DealingEntity;
 }
 
@@ -33,7 +32,7 @@ public struct AbilityPrefabs : IComponentData {
   public Entity ChargeAttackAbility;
 }
 
-public struct DestroyOnTimer :IComponentData {
+public struct DestroyOnTimer : IComponentData {
   public float Value;
 }
 
@@ -64,7 +63,7 @@ public struct AbilityCooldownTicks : IComponentData {
   public uint ChargeAbility;
 }
 
-[GhostComponent(PrefabType = GhostPrefabType.AllPredicted)] 
+[GhostComponent(PrefabType = GhostPrefabType.AllPredicted)]
 public struct AbilityCooldownTargetTicks : ICommandData {
   public NetworkTick Tick { get; set; }
   public NetworkTick AoeAbility;
@@ -85,7 +84,7 @@ public struct AutoAttackMoveSpeed : IComponentData {
 }
 
 public struct ChargeAbilityOwner : IComponentData {
-  [GhostField]public Entity Owner;
+  [GhostField] public Entity Owner;
 }
 
 public struct NpcTargetRadius : IComponentData {
@@ -93,16 +92,16 @@ public struct NpcTargetRadius : IComponentData {
 }
 
 public struct NpcTargetEntity : IComponentData {
-  [GhostField]public Entity Value;
+  [GhostField] public Entity Value;
 }
 
-public struct NpcAttackProperties: IComponentData {
+public struct NpcAttackProperties : IComponentData {
   public float3 FirePointOffset;
   public uint CooldownTickCount;
   public Entity AttackPrefab;
 }
 
-public struct  NpcAttackCoolDown : ICommandData{
+public struct NpcAttackCoolDown : ICommandData {
   public NetworkTick Tick { get; set; }
   public NetworkTick Value;
 }

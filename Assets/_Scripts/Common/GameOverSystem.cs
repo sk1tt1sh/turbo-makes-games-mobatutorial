@@ -1,6 +1,5 @@
 using System;
 using Unity.Entities;
-using UnityEngine;
 
 public partial class GameOverSystem : SystemBase {
   public Action<TeamType> OnGameOver;

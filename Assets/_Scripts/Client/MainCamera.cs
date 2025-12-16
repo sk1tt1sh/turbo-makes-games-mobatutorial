@@ -1,8 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 
-public class MainCamera : IComponentData
-{
+public class MainCamera : IComponentData {
   public Camera Value;
 
 }

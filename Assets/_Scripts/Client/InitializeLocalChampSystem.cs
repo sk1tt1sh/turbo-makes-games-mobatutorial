@@ -1,4 +1,3 @@
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.NetCode;
@@ -12,13 +11,13 @@ public partial struct InitializeLocalChampSystem : ISystem {
 
   public void OnUpdate(ref SystemState state) {
     EntityCommandBuffer ecb = new EntityCommandBuffer(Allocator.Temp);
-    foreach(var (transform, entity) in 
+    foreach(var (transform, entity) in
         SystemAPI.Query<LocalTransform>().WithAll<GhostOwnerIsLocal>()
         .WithNone<OwnerChampTag>()
         .WithEntityAccess()) {
 
       ecb.AddComponent<OwnerChampTag>(entity);
-      ecb.SetComponent(entity, new ChampMoveTargetPosition { 
+      ecb.SetComponent(entity, new ChampMoveTargetPosition {
         Value = transform.Position
       });
     }

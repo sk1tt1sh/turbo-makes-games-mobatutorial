@@ -1,4 +1,3 @@
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -26,8 +25,8 @@ public partial struct BeginSkillshotSystem : ISystem {
         .WithAll<Simulate>().WithNone<AimSkillShotTag>().WithEntityAccess()) {
 
       bool isOnCoolDown = AbilityCooldownCheck
-        .IsOnCooldown(ref netTime, currentTick, abilityCdTargetTicks,AbilitiesList.SkillShot);
-      
+        .IsOnCooldown(ref netTime, currentTick, abilityCdTargetTicks, AbilitiesList.SkillShot);
+
       if(isOnCoolDown) continue;
       if(!abilityInput.ValueRO.SkillShotAbility.IsSet) continue;
 
@@ -41,9 +40,9 @@ public partial struct BeginSkillshotSystem : ISystem {
 
     foreach(var (abilityInput, abilityPrefab, mobaTeam, localXform, abilityCdTicks, abilityCdTargetTicks, aimInput, entity) in
         SystemAPI.Query<RefRO<AbilityInput>, RefRO<AbilityPrefabs>, RefRO<MobaTeam>,
-        RefRO<LocalTransform>, 
-        RefRO<AbilityCooldownTicks>, 
-        DynamicBuffer<AbilityCooldownTargetTicks>, 
+        RefRO<LocalTransform>,
+        RefRO<AbilityCooldownTicks>,
+        DynamicBuffer<AbilityCooldownTargetTicks>,
         RefRO<AimInput>>()
         .WithAll<Simulate, AimSkillShotTag>().WithEntityAccess()) {
 

@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.NetCode;
 using UnityEngine;
 
 public class DamageOnTriggerAuthoring : MonoBehaviour {
@@ -9,9 +8,9 @@ public class DamageOnTriggerAuthoring : MonoBehaviour {
   class DamageOnTriggerAuthoringBaker : Baker<DamageOnTriggerAuthoring> {
     public override void Bake(DamageOnTriggerAuthoring authoring) {
       var entity = GetEntity(TransformUsageFlags.Dynamic);
-      AddComponent(entity, new DamageOnTrigger { 
-        Value = authoring.DamageOnTrigger, 
-        DestroyOnHit = authoring.DestroyOnHit 
+      AddComponent(entity, new DamageOnTrigger {
+        Value = authoring.DamageOnTrigger,
+        DestroyOnHit = authoring.DestroyOnHit
       });
       AddBuffer<AlreadyDamagedEntity>(entity);
     }
