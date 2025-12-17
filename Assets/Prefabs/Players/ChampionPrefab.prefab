@@ -355,7 +355,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AbilityAuthoring
   AoeAbility: {fileID: 6439170147438204851, guid: a8635addc2dcb744a9b85b83d47ffde1,
     type: 3}
-  SkillShotAbility: {fileID: 2431554015213539405, guid: 56d86910efbf5594887444d68708aa66,
+  SkillShotAbility: {fileID: 47208520287906011, guid: 66db033a665994ba0b62a02d9e69b7ea,
     type: 3}
   ChargeAbility: {fileID: 6310683850581915615, guid: 93ec3ac6e256dd94f9b02cf94c56310f,
     type: 3}

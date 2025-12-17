@@ -5,6 +5,7 @@ using Unity.NetCode;
 public partial struct AbilityCooldownUISystem : ISystem {
   public void OnCreate(ref SystemState state) {
     state.RequireForUpdate<NetworkTime>();
+    state.RequireForUpdate<OwnerChampTag>();
   }
 
   public void OnUpdate(ref SystemState state) {
