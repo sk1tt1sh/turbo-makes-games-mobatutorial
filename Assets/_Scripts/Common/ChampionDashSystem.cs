@@ -26,9 +26,11 @@ public partial struct ChampionDashSystem : ISystem {
     var transformLookup = SystemAPI.GetComponentLookup<LocalTransform>(true);
 
     foreach(var (xForm, dashData, targetLoc, moveSpeed, entity) in
-        SystemAPI.Query<RefRW<LocalTransform>, RefRW<ChampDashData>,
-        RefRO<ChampMoveTargetPosition>,
-        RefRO<CharacterMoveSpeed>>()
+        SystemAPI.Query<
+          RefRW<LocalTransform>, 
+          RefRW<ChampDashData>,
+          RefRO<ChampMoveTargetPosition>,
+          RefRO<CharacterMoveSpeed>>()
         .WithAll<Simulate, ChampDashingTag>().WithEntityAccess()) {
 
       float3 moveTarget = targetLoc.ValueRO.Value;
