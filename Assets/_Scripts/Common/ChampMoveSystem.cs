@@ -14,7 +14,7 @@ public partial class ChampMoveSystem : SystemBase {
   protected override void OnUpdate() {
     float deltaTime = SystemAPI.Time.DeltaTime;
 
-    const float MOVEMENT_THRESHOLD = 0.25f;
+    const float MOVEMENT_THRESHOLD = 0.3f;
     //const float GROUND_SNAP_OFFSET = 0.5f;   // how high above hit.point the character should stand
     //const float RAY_START_HEIGHT = 25f;    // start well above terrain
     //const float RAY_DISTANCE = 200f;   // long enough for tall terrain / bad Y states
@@ -22,7 +22,7 @@ public partial class ChampMoveSystem : SystemBase {
     // Optional: restrict to a ground layer if you have it set up
     // int groundMask = LayerMask.GetMask("Default", "Terrain", "Ground");
     // For now: everything
-    int groundMask = ~0;
+    //int groundMask = ~0;
 
     foreach(var (transform, movePosition, moveSpeed) in
              SystemAPI.Query<
